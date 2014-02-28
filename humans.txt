@@ -3,11 +3,32 @@
 
 # TEAM
 
-    <name> -- <role> -- <twitter>
+    OpenFusion Vizit Developer: David Tucker
+    GitHub: dmtucker
+    From: Santa Cruz, California, US
+
+    OpenFusion Web Developer: Bardia Keyoumarsi
+    GitHub: bkeyoumarsi
+    From: Santa Cruz, California, US
+
+    OpenFusion iOS Developer: Michael Baptist
+    GitHub: mbaptist23
+    From: Santa Cruz, California, US
+
+    OpenFusion Sensor Firmware: Michael Bennett
+    GitHub: mick31
+    From: Santa Cruz, California, US
+
+    OpenFusion Sensor Hardware: Vincent Lantaca
+    From: Santa Cruz, California, US
 
 # THANKS
 
-    <name>
+    Project Advisor: David Munday
+    From: Santa Cruz, California, US
+
+    Project Advisor: Mike Goldman
+    From: Livermore, California, US
 
 # TECHNOLOGY COLOPHON
 
