@@ -58,7 +58,7 @@ if (!queryString.hasOwnProperty("data")) unvisualizable(
     "Example\n" +
     window.location.protocol+"//"+window.location.host+window.location.pathname+"?data=points.geojson"
 );
-else $.getJSON(queryString.data)
+else $.getJSON("data/"+queryString.data)
     .done(function ( json ) {
         if (!isFeatureCollection(json)) unvisualizable(
             "Error: "+queryString.data+" must specify a FeatureCollection object!\n" +
