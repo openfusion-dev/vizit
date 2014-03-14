@@ -1,59 +1,3 @@
-function isGeometry ( json ) {
-    if (json.hasOwnProperty("type")) {
-        if (json.type == "GeometryCollection") return isGeometryCollection(json);
-        else return $.inArray(
-            json.type,
-            [
-                "Point",
-                "MultiPoint",
-                "LineString",
-                "MultiLineString",
-                "Polygon",
-                "MultiPolygon"
-            ]
-        ) > -1 && json.hasOwnProperty("coordinates");
-        // TODO Validate coordinates based on type.
-    }
-    else return false;
-}
-
-function isGeometryCollection ( json ) {
-    if (json.hasOwnProperty("type") && json.type == "GeometryCollection" &&
-        json.hasOwnProperty("geometries")) {
-        for (var i in json.geometries) {
-            if (!isGeometry(json.geometries[i])) return false;
-        }
-        return true;
-    }
-    else return false;
-}
-
-function isFeature ( json ) {
-    if (json.hasOwnProperty("type")) {
-        if (json.type == "FeatureCollection") return isFeatureCollection(json); // This does not conform to GeoJSON v1.0.
-        else return json.type == "Feature" &&
-                    json.hasOwnProperty("geometry") && isGeometry (json.geometry) &&
-                    json.hasOwnProperty("properties");
-    }
-    else return false;
-}
-
-function isFeatureCollection ( json ) {
-    if (json.hasOwnProperty("type") && json.type == "FeatureCollection" &&
-        json.hasOwnProperty("features")) {
-        for (var i in json.features) {
-            if (!isFeature(json.features[i])) return false;
-        }
-        return true;
-    }
-    else return false;
-}
-
-function isGeoJSON ( json ) {
-    return isFeature(json) || isGeometry(json);
-}
-
-
 function unvisualizable ( message ) {
     console.log(message);
     alert(message);
@@ -62,7 +6,7 @@ function unvisualizable ( message ) {
 }
 
 function plot ( map , GeoJSON ) {
-    L.geoJson(
+    return L.geoJson(
         GeoJSON,
         {
             pointToLayer: function ( feature , coordinate ) {
@@ -85,7 +29,15 @@ function plot ( map , GeoJSON ) {
                 )
             },
             onEachFeature: function ( feature , layer ) {
-                layer.bindPopup(feature.properties.name);
+                var popup = "";
+                if (typeof feature.properties.timestamp !== "undefined") {
+                    var timestamp = new Date(feature.properties.timestamp);
+                    popup += JSON.stringify(timestamp).replace(/\"/g,"")+"<br>";
+                }
+                if (typeof feature.properties.text   !== "undefined") popup += feature.properties.text+"<br>";
+                if (typeof feature.properties.image  !== "undefined") popup += "<img style='width:300px; height:auto;' src='data:image/jpeg;base64,"+feature.properties.image+"'><br>";
+                if (typeof feature.properties.source !== "undefined") popup += "<small>from "+feature.properties.source+"</small>";
+                if (popup != "") layer.bindPopup("<p style='text-align:left;'>"+popup+"</p>");
             }
         }
     ).addTo(map);
@@ -114,9 +66,14 @@ else $.getJSON(queryString.data)
             "See http://geojson.org/ for more information."
         );
         var multiset = false;
-        for (var i in json.features) if (json.features[i]) multiset = true;
+        for (var i in json.features) {
+            if (isFeatureCollection(json.features[i])) {
+                multiset = true;
+                break;
+            }
+        }
         
-        var map = L.map("map").setView([0,0],3);
+        var map = L.map("map").setView([0,0],0);
         L.tileLayer(
             "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
             {
@@ -125,29 +82,36 @@ else $.getJSON(queryString.data)
         ).addTo(map);
         
         if (multiset) {
+            var mapBounds;
             for (var seti in json.features) {
                 if (!isFeatureCollection(json.features[seti])) unvisualizable(
                     "Error: "+queryString.data+" is malformed."
                 );
                 var epicenter = json.features[seti].features[0];
-                L.circle(
-                    [epicenter.geometry.coordinates[1],epicenter.geometry.coordinates[0]],
-                    2500,
-                    { // TODO Add other options for appearance modification, and make them accessible from the GeoJSON file.
-                        weight: 1,
-                        color: "#000",
-                        opacity: 1.0,
-                        fillColor: "#fff",
-                        fillOpacity: 0.4
-                    }
-                ).addTo(map);
+                if (typeof epicenter.properties.radius !== "undefined") {
+                    L.circle(
+                        [epicenter.geometry.coordinates[1],epicenter.geometry.coordinates[0]],
+                        epicenter.properties.radius,
+                        { // TODO Add other options for appearance modification, and make them accessible from the GeoJSON file.
+                            weight: 1,
+                            color: "#000",
+                            opacity: 1.0,
+                            fillColor: "#fff",
+                            fillOpacity: 0.4
+                        }
+                    ).addTo(map);
+                }
                 L.marker([epicenter.geometry.coordinates[1],epicenter.geometry.coordinates[0]])
-                    .bindPopup(epicenter.properties.name)
+                    .bindPopup(epicenter.properties.data)
                     .addTo(map);
-                plot(map,json.features[seti].features[1]);
+                
+                var layerBounds = plot(map,json.features[seti].features[1]).getBounds();
+                if (seti == 0) mapBounds = layerBounds;
+                mapBounds.extend(layerBounds);
             }
+            map.fitBounds(mapBounds);
         }
-        else plot(map,json);
+        else map.fitBounds(plot(map,json).getBounds());
     })
     .fail(function ( response , error , statusText ) {
         unvisualizable(
