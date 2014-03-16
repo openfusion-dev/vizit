@@ -16,8 +16,6 @@ function plot ( map , GeoJSON ) {
                         className:   (typeof feature.properties.className   === "undefined") ? ""     : feature.properties.className,
                         stroke:      (typeof feature.properties.stroke      === "undefined") ? true   : feature.properties.stroke,
                         dashArray:   (typeof feature.properties.dashArray   === "undefined") ? null   : feature.properties.dashArray,
-                        //lineCap: null, //butt, round, square // TODO Figure out if these are applicable.
-                        //lineJoin: null, //miter, round, bevel // TODO Figure out if these are applicable.
                         weight:      (typeof feature.properties.weight      === "undefined") ? 4      : feature.properties.weight,
                         color:       (typeof feature.properties.color       === "undefined") ? "#000" : feature.properties.color,
                         opacity:     (typeof feature.properties.opacity     === "undefined") ? 1.0    : feature.properties.opacity,
@@ -30,13 +28,10 @@ function plot ( map , GeoJSON ) {
             },
             onEachFeature: function ( feature , layer ) {
                 var popup = "";
-                if (typeof feature.properties.timestamp !== "undefined") {
-                    var timestamp = new Date(feature.properties.timestamp);
-                    popup += JSON.stringify(timestamp).replace(/\"/g,"")+"<br>";
-                }
-                if (typeof feature.properties.text   !== "undefined") popup += feature.properties.text+"<br>";
-                if (typeof feature.properties.image  !== "undefined") popup += "<img style='width:300px; height:auto;' src='data:image/jpeg;base64,"+feature.properties.image+"'><br>";
-                if (typeof feature.properties.source !== "undefined") popup += "<small>from "+feature.properties.source+"</small>";
+                if (typeof feature.properties.timestamp !== "undefined") popup += new Date(feature.properties.timestamp)+"<br>";
+                if (typeof feature.properties.text      !== "undefined") popup += feature.properties.text+"<br>";
+                if (typeof feature.properties.image     !== "undefined") popup += "<img style='width:300px; height:auto;' src='data:image/jpeg;base64,"+feature.properties.image+"'><br>";
+                if (typeof feature.properties.source    !== "undefined") popup += "<small>from "+feature.properties.source+"</small>";
                 if (popup != "") layer.bindPopup("<p style='text-align:left;'>"+popup+"</p>");
             }
         }
@@ -115,7 +110,7 @@ else $.getJSON("data/"+queryString.data)
     })
     .fail(function ( response , error , statusText ) {
         unvisualizable(
-            (response.status == 404) ?
+            (response.status === 404) ?
                 "Error: " +queryString.data+" could not be found.":
                 "Error: " +statusText
         );

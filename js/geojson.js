@@ -1,6 +1,6 @@
 function isGeometry ( json ) {
     if (json.hasOwnProperty("type")) {
-        if (json.type == "GeometryCollection") return isGeometryCollection(json);
+        if (json.type === "GeometryCollection") return isGeometryCollection(json);
         else return $.inArray(
             json.type,
             [
@@ -18,7 +18,7 @@ function isGeometry ( json ) {
 }
 
 function isGeometryCollection ( json ) {
-    if (json.hasOwnProperty("type") && json.type == "GeometryCollection" &&
+    if (json.hasOwnProperty("type") && json.type === "GeometryCollection" &&
         json.hasOwnProperty("geometries")) {
         for (var i in json.geometries) {
             if (!isGeometry(json.geometries[i])) return false;
@@ -30,8 +30,8 @@ function isGeometryCollection ( json ) {
 
 function isFeature ( json ) {
     if (json.hasOwnProperty("type")) {
-        if (json.type == "FeatureCollection") return isFeatureCollection(json); // This does not conform to GeoJSON v1.0.
-        else return json.type == "Feature" &&
+        if (json.type === "FeatureCollection") return isFeatureCollection(json); // This does not conform to GeoJSON v1.0.
+        else return json.type === "Feature" &&
                     json.hasOwnProperty("geometry") && isGeometry (json.geometry) &&
                     json.hasOwnProperty("properties");
     }
@@ -39,7 +39,7 @@ function isFeature ( json ) {
 }
 
 function isFeatureCollection ( json ) {
-    if (json.hasOwnProperty("type") && json.type == "FeatureCollection" &&
+    if (json.hasOwnProperty("type") && json.type === "FeatureCollection" &&
         json.hasOwnProperty("features")) {
         for (var i in json.features) {
             if (!isFeature(json.features[i])) return false;
