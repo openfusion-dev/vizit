@@ -29,10 +29,10 @@ function plot ( map , GeoJSON ) {
             },
             onEachFeature: function ( feature , layer ) {
                 var popup = "";
-                if (typeof feature.properties.timestamp !== "undefined") popup += new Date(feature.properties.timestamp)+"<br>";
+                if (typeof feature.properties.timestamp !== "undefined") popup += "<span style='font-weight:bold;'>"+(new Date(feature.properties.timestamp))+"</span><br>";
                 if (typeof feature.properties.text      !== "undefined") popup += feature.properties.text+"<br>";
                 if (typeof feature.properties.image     !== "undefined") popup += "<img style='width:300px; height:auto;' src='data:image/jpeg;base64,"+feature.properties.image+"'><br>";
-                if (typeof feature.properties.source    !== "undefined") popup += "<small>from "+feature.properties.source+"</small>";
+                if (typeof feature.properties.source    !== "undefined") popup += "<small style='font-style:italic;'>from "+feature.properties.source+"</small>";
                 if (popup != "") layer.bindPopup("<p style='text-align:left;'>"+popup+"</p>");
             }
         }
