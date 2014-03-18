@@ -10,19 +10,20 @@ function plot ( map , GeoJSON ) {
         GeoJSON,
         {
             pointToLayer: function ( feature , coordinate ) {
+                var defaultFillColor = (typeof feature.properties.image === "undefined") ? "#5Af" : "#E79";
                 return L.circleMarker(
                     coordinate,
                     {
-                        className:   (typeof feature.properties.className   === "undefined") ? ""     : feature.properties.className,
-                        stroke:      (typeof feature.properties.stroke      === "undefined") ? true   : feature.properties.stroke,
-                        dashArray:   (typeof feature.properties.dashArray   === "undefined") ? null   : feature.properties.dashArray,
-                        weight:      (typeof feature.properties.weight      === "undefined") ? 4      : feature.properties.weight,
-                        color:       (typeof feature.properties.color       === "undefined") ? "#000" : feature.properties.color,
-                        opacity:     (typeof feature.properties.opacity     === "undefined") ? 1.0    : feature.properties.opacity,
-                        radius:      (typeof feature.properties.radius      === "undefined") ? 8      : feature.properties.radius,
-                        fill:        (typeof feature.properties.fill        === "undefined") ? true   : feature.properties.fill,
-                        fillColor:   (typeof feature.properties.fillColor   === "undefined") ? "#5Af" : feature.properties.fillColor,
-                        fillOpacity: (typeof feature.properties.fillOpacity === "undefined") ? 0.8    : feature.properties.fillOpacity
+                        className:   (typeof feature.properties.className   === "undefined") ? ""               : feature.properties.className,
+                        stroke:      (typeof feature.properties.stroke      === "undefined") ? true             : feature.properties.stroke,
+                        dashArray:   (typeof feature.properties.dashArray   === "undefined") ? null             : feature.properties.dashArray,
+                        weight:      (typeof feature.properties.weight      === "undefined") ? 4                : feature.properties.weight,
+                        color:       (typeof feature.properties.color       === "undefined") ? "#000"           : feature.properties.color,
+                        opacity:     (typeof feature.properties.opacity     === "undefined") ? 1.0              : feature.properties.opacity,
+                        radius:      (typeof feature.properties.radius      === "undefined") ? 8                : feature.properties.radius,
+                        fill:        (typeof feature.properties.fill        === "undefined") ? true             : feature.properties.fill,
+                        fillColor:   (typeof feature.properties.fillColor   === "undefined") ? defaultFillColor : feature.properties.fillColor,
+                        fillOpacity: (typeof feature.properties.fillOpacity === "undefined") ? 0.8              : feature.properties.fillOpacity
                     }
                 )
             },
