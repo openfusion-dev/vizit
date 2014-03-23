@@ -1,25 +1,24 @@
 function isGeometry ( json ) {
-    if (json.hasOwnProperty("type")) {
-        if (json.type === "GeometryCollection") return isGeometryCollection(json);
-        else return $.inArray(
-            json.type,
-            [
-                "Point",
-                "MultiPoint",
-                "LineString",
-                "MultiLineString",
-                "Polygon",
-                "MultiPolygon"
-            ]
-        ) > -1 && json.hasOwnProperty("coordinates");
-        // TODO Validate coordinates based on type.
-    }
-    else return false;
+    if (json == null) return false;
+    if (json.type == null) return false;
+    if (json.type === "GeometryCollection") return isGeometryCollection(json);
+    else return $.inArray(
+        json.type,
+        [
+            "Point",
+            "MultiPoint",
+            "LineString",
+            "MultiLineString",
+            "Polygon",
+            "MultiPolygon"
+        ]
+    ) > -1 && Array.isArray(json.coordinates);
+    // TODO Validate coordinates based on type.
 }
 
 function isGeometryCollection ( json ) {
-    if (json.hasOwnProperty("type") && json.type === "GeometryCollection" &&
-        json.hasOwnProperty("geometries")) {
+    if (json == null) return false;
+    if (json.type === "GeometryCollection" && Array.isArray(json.geometries)) {
         for (var i in json.geometries) {
             if (!isGeometry(json.geometries[i])) return false;
         }
@@ -29,18 +28,17 @@ function isGeometryCollection ( json ) {
 }
 
 function isFeature ( json ) {
-    if (json.hasOwnProperty("type")) {
-        if (json.type === "FeatureCollection") return isFeatureCollection(json); // This does not conform to GeoJSON v1.0.
-        else return json.type === "Feature" &&
-                    json.hasOwnProperty("geometry") && isGeometry (json.geometry) &&
-                    json.hasOwnProperty("properties");
-    }
-    else return false;
+    if (json == null) return false;
+    if (json.type == null) return false;
+    //if (json.type === "FeatureCollection") return isFeatureCollection(json); // This does not conform to GeoJSON v1.0.
+    return json.type === "Feature" &&
+           isGeometry (json.geometry) &&
+           typeof json.properties === "object";
 }
 
 function isFeatureCollection ( json ) {
-    if (json.hasOwnProperty("type") && json.type === "FeatureCollection" &&
-        json.hasOwnProperty("features")) {
+    if (json == null) return false;
+    if (json.type === "FeatureCollection" && Array.isArray(json.features)) {
         for (var i in json.features) {
             if (!isFeature(json.features[i])) return false;
         }
@@ -50,5 +48,8 @@ function isFeatureCollection ( json ) {
 }
 
 function isGeoJSON ( json ) {
-    return isFeature(json) || isGeometry(json);
+    if (json == null) return false;
+    return isGeometry(json) ||
+           isFeature(json)  ||
+           isFeatureCollection(json);
 }

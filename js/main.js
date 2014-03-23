@@ -1,118 +1,112 @@
-function unvisualizable ( message ) {
+function problem ( message ) {
     console.log(message);
     alert(message);
-    window.location.assign("http://gsf.soe.ucsc.edu");
-    throw new Error("unvisualizable"); // This prevents further execution after redirecting.
 }
 
 function plot ( map , GeoJSON ) {
     return L.geoJson(
         GeoJSON,
         {
-            pointToLayer: function ( feature , coordinate ) {
-                var defaultFillColor = (typeof feature.properties.image === "undefined") ? "#5Af" : "#E79";
-                return L.circleMarker(
-                    coordinate,
-                    {
-                        className:   (typeof feature.properties.className   === "undefined") ? ""               : feature.properties.className,
-                        stroke:      (typeof feature.properties.stroke      === "undefined") ? true             : feature.properties.stroke,
-                        dashArray:   (typeof feature.properties.dashArray   === "undefined") ? null             : feature.properties.dashArray,
-                        weight:      (typeof feature.properties.weight      === "undefined") ? 4                : feature.properties.weight,
-                        color:       (typeof feature.properties.color       === "undefined") ? "#000"           : feature.properties.color,
-                        opacity:     (typeof feature.properties.opacity     === "undefined") ? 1.0              : feature.properties.opacity,
-                        radius:      (typeof feature.properties.radius      === "undefined") ? 8                : feature.properties.radius,
-                        fill:        (typeof feature.properties.fill        === "undefined") ? true             : feature.properties.fill,
-                        fillColor:   (typeof feature.properties.fillColor   === "undefined") ? defaultFillColor : feature.properties.fillColor,
-                        fillOpacity: (typeof feature.properties.fillOpacity === "undefined") ? 0.8              : feature.properties.fillOpacity
+            pointToLayer: function ( geojson , coordinate ) {
+                var style = {};
+                if (geojson.properties != null) {
+                    style = {
+                        className:   (typeof geojson.properties.className   === "string")  ? geojson.properties.className   : "",
+                        stroke:      (typeof geojson.properties.stroke      === "boolean") ? geojson.properties.stroke      : true,
+                        dashArray:   (typeof geojson.properties.dashArray   === "string")  ? geojson.properties.dashArray   : null,
+                        weight:      (typeof geojson.properties.weight      === "number")  ? geojson.properties.weight      : 4,
+                        color:       (typeof geojson.properties.color       === "string")  ? geojson.properties.color       : "#000",
+                        opacity:     (typeof geojson.properties.opacity     === "number")  ? geojson.properties.opacity     : 1.0,
+                        radius:      (typeof geojson.properties.radius      === "number")  ? geojson.properties.radius      : 8,
+                        fill:        (typeof geojson.properties.fill        === "boolean") ? geojson.properties.fill        : true,
+                        fillColor:   (typeof geojson.properties.fillColor   === "string")  ? geojson.properties.fillColor   :
+                                     (typeof geojson.properties.image       === "string")  ? "#E79" : "#5Af",
+                        fillOpacity: (typeof geojson.properties.fillOpacity === "number")  ? geojson.properties.fillOpacity : 0.8
                     }
-                )
+                }
+                return L.circleMarker(coordinate,style);
             },
-            onEachFeature: function ( feature , layer ) {
-                var popup = "";
-                if (typeof feature.properties.timestamp !== "undefined") popup += "<span style='font-weight:bold;'>"+(new Date(feature.properties.timestamp))+"</span><br>";
-                if (typeof feature.properties.text      !== "undefined") popup += feature.properties.text+"<br>";
-                if (typeof feature.properties.image     !== "undefined") popup += "<img style='width:300px; height:auto;' src='data:image/jpeg;base64,"+feature.properties.image+"'><br>";
-                if (typeof feature.properties.source    !== "undefined") popup += "<small style='font-style:italic;'>from "+feature.properties.source+"</small>";
-                if (popup != "") layer.bindPopup("<p style='text-align:left;'>"+popup+"</p>");
+            onEachFeature: function ( geojson , layer ) {
+                if (geojson.properties != null) {
+                    var popup = "";
+                    if (geojson.properties.timestamp != null) popup += "<span style='font-weight:bold;'>"+(new Date(geojson.properties.timestamp))+"</span><br>";
+                    if (geojson.properties.text      != null) popup += geojson.properties.text+"<br>";
+                    if (geojson.properties.image     != null) popup += "<img style='width:300px; height:auto;' src='data:image/jpeg;base64,"+geojson.properties.image+"'><br>";
+                    if (geojson.properties.source    != null) popup += "<small style='font-style:italic;'>from "+geojson.properties.source+"</small>";
+                    if (popup !== "") layer.bindPopup("<p style='text-align:left;'>"+popup+"</p>");
+                }
             }
         }
     ).addTo(map);
 }
 
 
+function processFeature ( epicenter ) {
+    // TODO Verify epicenter.properties.
+    if (typeof epicenter.properties.radius === "number") {
+        L.circle(
+            [epicenter.geometry.coordinates[1],epicenter.geometry.coordinates[0]],
+            epicenter.properties.radius,
+            { // TODO Add other options for appearance modification, and make them accessible from the GeoJSON file.
+                weight: 1,
+                color: "#000",
+                opacity: 1.0,
+                fillColor: "#fff",
+                fillOpacity: 0.4
+            }
+        ).addTo(map);
+    }
+    // TODO Add other options for appearance modification, and make them accessible from the GeoJSON file.
+    L.marker([epicenter.geometry.coordinates[1],epicenter.geometry.coordinates[0]])
+        .bindPopup(epicenter.properties.data)
+        .addTo(map);
+    if (isFeatureCollection(epicenter.properties.related)) {
+        return plot(map,epicenter.properties.related).getBounds();
+    }
+    else return map.getBounds();
+}
 
+
+
+var map = L.map("map").setView([0,0],0);
+L.tileLayer(
+    "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
+    {
+        attribution: "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
+    }
+).addTo(map);
 
 var queryString = {}
-window.location.search.substr(1).split("&").forEach(
+window.location.search.substr(1).split("&").forEach( // TODO Upgrade this.
     function ( item ) {
         queryString[item.split("=")[0]] = item.split("=")[1]
     }
 )
-if (!queryString.hasOwnProperty("data")) unvisualizable(
-    "Error: A GeoJSON file must be specified in the query string.\n" +
-    "\n" +
-    "Example\n" +
-    window.location.protocol+"//"+window.location.host+window.location.pathname+"?data=points.geojson"
-);
-else $.getJSON("data/"+queryString.data)
-    .done(function ( json ) {
-        if (!isFeatureCollection(json)) unvisualizable(
-            "Error: "+queryString.data+" must specify a FeatureCollection object!\n" +
-            "\n" +
-            "See http://geojson.org/ for more information."
-        );
-        var multiset = false;
-        for (var i in json.features) {
-            if (isFeatureCollection(json.features[i])) {
-                multiset = true;
-                break;
-            }
+$.getJSON("data/"+queryString.data)
+.done(function ( geojson ) {
+    if (!isGeoJSON(geojson)) problem(
+        "Error: "+queryString.data+" must be a valid GeoJSON file!\n" +
+        "\n" +
+        "See http://geojson.org/ for more information."
+    );
+    else if (isFeature(geojson)) {
+        map.fitBounds(processFeature(geojson));
+    }
+    else if (isFeatureCollection(geojson)) {
+        var mapBounds;
+        for (var featurei in geojson.features) {
+            var layerBounds = processFeature(geojson.features[featurei]);
+            if (featurei == 0) mapBounds = layerBounds;
+            else mapBounds.extend(layerBounds);
         }
-        
-        var map = L.map("map").setView([0,0],0);
-        L.tileLayer(
-            "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
-            {
-                attribution: "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
-            }
-        ).addTo(map);
-        
-        if (multiset) {
-            var mapBounds;
-            for (var seti in json.features) {
-                if (!isFeatureCollection(json.features[seti])) unvisualizable(
-                    "Error: "+queryString.data+" is malformed."
-                );
-                var epicenter = json.features[seti].features[0];
-                if (typeof epicenter.properties.radius !== "undefined") {
-                    L.circle(
-                        [epicenter.geometry.coordinates[1],epicenter.geometry.coordinates[0]],
-                        epicenter.properties.radius,
-                        { // TODO Add other options for appearance modification, and make them accessible from the GeoJSON file.
-                            weight: 1,
-                            color: "#000",
-                            opacity: 1.0,
-                            fillColor: "#fff",
-                            fillOpacity: 0.4
-                        }
-                    ).addTo(map);
-                }
-                L.marker([epicenter.geometry.coordinates[1],epicenter.geometry.coordinates[0]])
-                    .bindPopup(epicenter.properties.data)
-                    .addTo(map);
-                
-                var layerBounds = plot(map,json.features[seti].features[1]).getBounds();
-                if (seti == 0) mapBounds = layerBounds;
-                mapBounds.extend(layerBounds);
-            }
-            map.fitBounds(mapBounds);
-        }
-        else map.fitBounds(plot(map,json).getBounds());
-    })
-    .fail(function ( response , error , statusText ) {
-        unvisualizable(
-            (response.status === 404) ?
-                "Error: " +queryString.data+" could not be found.":
-                "Error: " +statusText
-        );
-    })
+        map.fitBounds(mapBounds);
+    }
+    else map.fitBounds(plot(map,geojson).getBounds());
+})
+.fail(function ( response , error , statusText ) {
+    problem(
+        (response.status === 404) ?
+            "Error: " +queryString.data+" could not be found.":
+            "Error: " +statusText
+    );
+})
