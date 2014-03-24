@@ -1,4 +1,4 @@
-function OpenFusionPreprocessor ( GeoJSON ) {
+function OpenFusionPreprocessor ( OpenFusionGeoJSON ) {
     var OpenFusionCircleMarkerOptions = {
         stroke: true,
         color: "#000",
@@ -15,16 +15,16 @@ function OpenFusionPreprocessor ( GeoJSON ) {
         className: "",
         radius: 8  // This Path Option is specific to CircleMarkers.
     }
-    switch (GeoJSON.OpenFusion) {
+    switch (OpenFusionGeoJSON.OpenFusion) {
         default:
-            if (isFeatureCollection(GeoJSON)) {
-                for (var featurei in GeoJSON.features) {
-                    var epicenter = GeoJSON.features[featurei];
+            if (isFeatureCollection(OpenFusionGeoJSON)) {
+                for (var featurei in OpenFusionGeoJSON.features) {
+                    var epicenter = OpenFusionGeoJSON.features[featurei];
                     if (isFeatureCollection(epicenter.properties.related)) {
                         for (var relatedi in epicenter.properties.related.features) {
                             var feature = epicenter.properties.related.features[relatedi];
                             feature.properties.marker = "CircleMarker";
-                            feature.properties.markerOptions = OpenFusionCircleMarkerOptions; 
+                            feature.properties.markerOptions = JSON.parse(JSON.stringify(OpenFusionCircleMarkerOptions));
                             if (typeof feature.properties.image === "string") {
                                 feature.properties.markerOptions.fillColor = "#E79";
                             }
@@ -34,5 +34,5 @@ function OpenFusionPreprocessor ( GeoJSON ) {
             }
             else console.log("The specified GeoJSON file is not compatible with OpenFusion.");
     }
-    return GeoJSON;
+    return OpenFusionGeoJSON;
 }

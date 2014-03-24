@@ -3,13 +3,25 @@ function problem ( message ) {
     alert(message);
 }
 
+
+function parseQueryString ( uri ) {
+    var parameters = {}
+    uri.search.substr(1).split("&").forEach(
+        function ( item ) {
+            parameters[item.split("=")[0]] = item.split("=")[1]
+        }
+    )
+    return parameters;
+}
+
+
 function plot ( map , GeoJSON ) {
     return L.geoJson(
         GeoJSON,
         {
-            pointToLayer: function ( geojson , coordinate ) {
-                if (geojson.properties != null) {
-                    var properties = geojson.properties;
+            pointToLayer: function ( GeoJSONObject , coordinate ) {
+                if (GeoJSONObject.properties != null) {
+                    var properties = GeoJSONObject.properties;
                     if (properties.marker === "Marker") {
                         var markerOptions = {}
                         if (properties.markerOptions != null) markerOptions = properties.markerOptions;
@@ -20,13 +32,12 @@ function plot ( map , GeoJSON ) {
                         if (properties.markerOptions != null) pathOptions = properties.markerOptions;
                         return L.circleMarker(coordinate,pathOptions);
                     }
-                    else console.log("Only Markers and CircleMarkers are supported.");
                 }
                 return L.marker(coordinate);
             },
-            onEachFeature: function ( geojson , layer ) {
-                if (geojson.properties != null) {
-                    var properties = geojson.properties;
+            onEachFeature: function ( GeoJSONObject , layer ) {
+                if (GeoJSONObject.properties != null) {
+                    var properties = GeoJSONObject.properties;
                     var popup = "";
                     if (properties.timestamp != null) popup += "<span style='font-weight:bold;'>"+(new Date(properties.timestamp))+"</span><br>";
                     if (properties.text      != null) popup += properties.text+"<br>";
@@ -40,7 +51,7 @@ function plot ( map , GeoJSON ) {
 }
 
 
-function processFeature ( feature ) {
+function processFeature ( map , feature ) {
     if (typeof feature.properties.radius === "number") {
         var pathOptions = {
             stroke: true,
@@ -81,16 +92,16 @@ function processFeature ( feature ) {
     }
     var bounds = plot(map,feature).getBounds();
     if (isFeatureCollection(feature.properties.related)) {
-        return bounds.extend(processFeatureCollection(feature.properties.related));
+        return bounds.extend(processFeatureCollection(map,feature.properties.related));
     }
     else return bounds;
 }
 
 
-function processFeatureCollection ( featureCollection ) {
+function processFeatureCollection ( map , featureCollection ) {
     var bounds;
     for (var featurei in featureCollection.features) {
-        var layerBounds = processFeature(featureCollection.features[featurei]);
+        var layerBounds = processFeature(map,featureCollection.features[featurei]);
         if (featurei == 0) bounds = layerBounds;
         else bounds.extend(layerBounds);
     }
@@ -98,50 +109,47 @@ function processFeatureCollection ( featureCollection ) {
 }
 
 
-function parseQueryString ( uri ) {
-    var queryString = {}
-    uri.search.substr(1).split("&").forEach(
-        function ( item ) {
-            queryString[item.split("=")[0]] = item.split("=")[1]
-        }
-    )
-    return queryString;
+function loadData ( map , file ) {
+    $.getJSON("data/"+file)
+        .done(function ( GeoJSON ) {
+            if (!isGeoJSON(GeoJSON)) problem(
+                "Error: "+file+" must be a valid GeoJSON file!\n" +
+                "\n" +
+                "See http://geojson.org/ for more information."
+            );
+            if (GeoJSON.OpenFusion != null) {
+                GeoJSON = OpenFusionPreprocessor(GeoJSON);
+            }
+            if (isFeature(GeoJSON)) {
+                map.fitBounds(processFeature(map,GeoJSON));
+            }
+            else if (isFeatureCollection(GeoJSON)) {
+                map.fitBounds(processFeatureCollection(map,GeoJSON));
+            }
+            else map.fitBounds(plot(map,GeoJSON).getBounds());
+        })
+        .fail(function ( response , error , statusText ) {
+            problem(
+                (response.status === 404) ?
+                    "Error: " +file+" could not be found.":
+                    "Error: " +statusText
+            );
+        })
 }
 
 
-var map = L.map("map").setView([0,0],3);
-L.tileLayer(
-    "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
-    {
-        attribution: "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
-    }
-).addTo(map);
-
-var queryString = parseQueryString(window.location);
-if (queryString.data != null) {
-    $.getJSON("data/"+queryString.data)
-    .done(function ( GeoJSON ) {
-        if (!isGeoJSON(GeoJSON)) problem(
-            "Error: "+queryString.data+" must be a valid GeoJSON file!\n" +
-            "\n" +
-            "See http://geojson.org/ for more information."
-        );
-        if (GeoJSON.OpenFusion != null) {
-            GeoJSON = OpenFusionPreprocessor(GeoJSON);
+function drawMap ( ) {
+    var map = L.map("map").setView([0,0],3);
+    L.tileLayer(
+        "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
+        {
+            attribution: "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
         }
-        if (isFeature(GeoJSON)) {
-            map.fitBounds(processFeature(GeoJSON));
-        }
-        else if (isFeatureCollection(GeoJSON)) {
-            map.fitBounds(processFeatureCollection(GeoJSON));
-        }
-        else map.fitBounds(plot(map,GeoJSON).getBounds());
-    })
-    .fail(function ( response , error , statusText ) {
-        problem(
-            (response.status === 404) ?
-                "Error: " +queryString.data+" could not be found.":
-                "Error: " +statusText
-        );
-    })
+    ).addTo(map);
+    return map;
 }
+
+
+var OSM = drawMap();
+var GET = parseQueryString(window.location);
+if (GET.data != null) loadData(OSM,GET.data);
