@@ -1,4 +1,5 @@
 {
+    "OpenFusion": "",
     "type": "FeatureCollection",
     "features": [
         {
@@ -12,7 +13,7 @@
             "type": "Feature",
             "properties": {
                 "radius": 1000.0,
-                "data": "Epicenter of tweets",
+                "text": "Epicenter of tweets",
                 "related": {
                     "type": "FeatureCollection",
                     "features": [
@@ -1404,7 +1405,7 @@
             "type": "Feature",
             "properties": {
                 "radius": 1000.0,
-                "data": "Epicenter of tweets",
+                "text": "Epicenter of tweets",
                 "related": {
                     "type": "FeatureCollection",
                     "features": [

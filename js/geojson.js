@@ -30,7 +30,6 @@ function isGeometryCollection ( json ) {
 function isFeature ( json ) {
     if (json == null) return false;
     if (json.type == null) return false;
-    //if (json.type === "FeatureCollection") return isFeatureCollection(json); // This does not conform to GeoJSON v1.0.
     return json.type === "Feature" &&
            isGeometry (json.geometry) &&
            typeof json.properties === "object";
