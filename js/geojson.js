@@ -1,3 +1,7 @@
+// TODO Validate CRS objects.
+// TODO Validate bbox members.
+
+
 function equalPositions ( a , b ) {
     if (!isPosition(a) || !isPosition(b)) return false;
     if (a.length != b.length) return false;
@@ -55,6 +59,7 @@ function isPolygon ( x ) {
     for (var linearRingi in x) {
         if (!isLinearRing(x[linearRingi])) return false;
     }
+    // TODO Verify subsequent rings are contained within previous ones.
     return true;
 }
 
@@ -102,7 +107,7 @@ function isFeature ( x ) {
     if (x == null) return false;
     if (x.type == null) return false;
     return x.type === "Feature" &&
-           isGeometry(x.geometry) &&
+           (x.geometry === null || isGeometry(x.geometry)) &&
            typeof x.properties === "object";
 }
 

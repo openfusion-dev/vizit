@@ -121,12 +121,14 @@ function loadData ( map , file ) {
                 GeoJSON = OpenFusionPreprocessor(GeoJSON);
             }
             if (isFeature(GeoJSON)) {
-                map.fitBounds(processFeature(map,GeoJSON));
+                if (GeoJSON.geometry !== null) map.fitBounds(processFeature(map,GeoJSON));
             }
             else if (isFeatureCollection(GeoJSON)) {
-                map.fitBounds(processFeatureCollection(map,GeoJSON));
+                if (GeoJSON.features.length > 0) map.fitBounds(processFeatureCollection(map,GeoJSON));
             }
-            else map.fitBounds(plot(map,GeoJSON).getBounds());
+            else if (!isGeometryCollection(GeoJSON) || GeoJSON.geometries.length > 0) {
+                map.fitBounds(plot(map,GeoJSON).getBounds());
+            }
         })
         .fail(function ( response , error , statusText ) {
             problem(
