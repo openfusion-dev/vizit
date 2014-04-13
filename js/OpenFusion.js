@@ -1,4 +1,4 @@
-function OpenFusionPreprocessor ( OpenFusionGeoJSON ) {
+function OpenFusionSpatialPreprocessor ( OpenFusionGeoJSON ) {
     var OpenFusionCircleMarkerOptions = {
         stroke: true,
         color: "#000",
