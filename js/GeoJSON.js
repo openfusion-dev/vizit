@@ -14,6 +14,7 @@ function equalPositions ( a , b ) {
 
 function isPosition ( x ) {
     if (!Array.isArray(x)) return false;
+    if (x.length < 2) return false;
     for (var numberi in x) {
         if (typeof x[numberi] !== "number") return false;
     }

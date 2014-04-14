@@ -1,52 +1,34 @@
-function drawMap ( ) {
-    var map = L.map("canvas").setView([0,0],3);
+function spatialVisualization ( ) {
+    var visualization = L.map("canvas").setView([0,0],3);
     L.tileLayer(
         "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
         {
-            attribution: "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
+            minZoom: 0,
+            maxZoom: 24,
+            maxNativeZoom: 18,
+            tileSize: 256,
+            subdomains: "abc",
+            errorTileUrl: "",
+            attribution: "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors",
+            tms: false,
+            continuousWorld: false,
+            noWrap: true,
+            zoomOffset: 0,
+            zoomReverse: false,
+            opactiy: 1.0,
+            zIndex: null,
+            unloadInvisibleTiles: false,
+            updateWhenIdle: false,
+            detectRetina: false,
+            reuseTiles: false,
+            bounds: null
         }
-    ).addTo(map);
-    return map;
+    ).addTo(visualization);
+    return visualization;
 }
 
 
-function plotSpatially ( map , GeoJSON ) {
-    return L.geoJson(
-        GeoJSON,
-        {
-            pointToLayer: function ( GeoJSONObject , coordinate ) {
-                if (GeoJSONObject.properties != null) {
-                    var properties = GeoJSONObject.properties;
-                    if (properties.marker === "Marker") {
-                        var markerOptions = {}
-                        if (properties.markerOptions != null) markerOptions = properties.markerOptions;
-                        return L.marker(coordinate,markerOptions);
-                    }
-                    else if (properties.marker === "CircleMarker") {
-                        var pathOptions = {}
-                        if (properties.markerOptions != null) pathOptions = properties.markerOptions;
-                        return L.circleMarker(coordinate,pathOptions);
-                    }
-                }
-                return L.marker(coordinate);
-            },
-            onEachFeature: function ( GeoJSONObject , layer ) {
-                if (GeoJSONObject.properties != null) {
-                    var properties = GeoJSONObject.properties;
-                    var popup = "";
-                    if (properties.timestamp != null) popup += "<span style='font-weight:bold;'>"+(new Date(properties.timestamp))+"</span><br>";
-                    if (properties.text      != null) popup += properties.text+"<br>";
-                    if (properties.image     != null) popup += "<img style='width:300px; height:auto;' src='data:image/jpeg;base64,"+properties.image+"'><br>";
-                    if (properties.source    != null) popup += "<small style='font-style:italic;'>from "+properties.source+"</small>";
-                    if (popup !== "") layer.bindPopup("<p style='text-align:left;'>"+popup+"</p>");
-                }
-            }
-        }
-    ).addTo(map);
-}
-
-
-function processFeatureSpatially ( map , feature ) {
+function processFeatureSpatially ( feature , layer ) {
     if (typeof feature.properties.radius === "number") {
         var pathOptions = {
             stroke: true,
@@ -85,37 +67,86 @@ function processFeatureSpatially ( map , feature ) {
             pathOptions
         ).addTo(map);
     }
-    var bounds = plotSpatially(map,feature).getBounds();
+    layer.addData(feature);
     if (isFeatureCollection(feature.properties.related)) {
-        return bounds.extend(processFeatureCollectionSpatially(map,feature.properties.related));
+        processFeatureCollectionSpatially(feature.properties.related,layer);
     }
-    else return bounds;
 }
 
 
-function processFeatureCollectionSpatially ( map , featureCollection ) {
-    var bounds;
+function processFeatureCollectionSpatially ( featureCollection , layer ) {
     for (var featurei in featureCollection.features) {
-        var layerBounds = processFeatureSpatially(map,featureCollection.features[featurei]);
-        if (featurei == 0) bounds = layerBounds;
-        else bounds.extend(layerBounds);
+        processFeatureSpatially(featureCollection.features[featurei],layer);
     }
-    return bounds;
+}
+
+
+function processGeoJSONspatially ( GeoJSON , layer ) {
+    if (isFeature(GeoJSON)) {
+        if (GeoJSON.geometry !== null) processFeatureSpatially(GeoJSON,layer);
+    }
+    else if (isFeatureCollection(GeoJSON)) {
+        if (GeoJSON.features.length > 0) processFeatureCollectionSpatially(GeoJSON,layer);
+    }
+    else if (!isGeometryCollection(GeoJSON) || GeoJSON.geometries.length > 0) {
+        layer.addData(GeoJSON);
+    }
+}
+
+
+function styleMarkerSpatially ( feature , coordinate ) {
+    if (feature.properties != null) {
+        var properties = feature.properties;
+        if (properties.marker === "Marker") {
+            var markerOptions = {}
+            if (properties.markerOptions != null) markerOptions = properties.markerOptions;
+            return L.marker(coordinate,markerOptions);
+        }
+        else if (properties.marker === "CircleMarker") {
+            var pathOptions = {}
+            if (properties.markerOptions != null) pathOptions = properties.markerOptions;
+            return L.circleMarker(coordinate,pathOptions);
+        }
+    }
+    return L.marker(coordinate);
+}
+
+
+function styleFeatureSpatially ( GeoJSONObject , layer ) {
+    if (GeoJSONObject.properties != null) {
+        var properties = GeoJSONObject.properties;
+        var popup = "";
+        if (properties.time   != null) popup += "<span style='font-weight:bold;'>"+(new Date(properties.time))+"</span><br>";
+        if (properties.text   != null) popup += properties.text+"<br>";
+        if (properties.image  != null) popup += "<img style='width:300px; height:auto;' src='data:image/jpeg;base64,"+properties.image+"'><br>";
+        if (properties.source != null) popup += "<small style='font-style:italic;'>from "+properties.source+"</small>";
+        if (popup !== "") layer.bindPopup("<p style='text-align:left;'>"+popup+"</p>");
+    }
 }
 
 
 function visualizeSpatially ( GeoJSON ) {
-    var map = drawMap();
     if (GeoJSON.OpenFusion != null) {
         GeoJSON = OpenFusionSpatialPreprocessor(GeoJSON);
     }
-    if (isFeature(GeoJSON)) {
-        if (GeoJSON.geometry !== null) map.fitBounds(processFeatureSpatially(map,GeoJSON));
-    }
-    else if (isFeatureCollection(GeoJSON)) {
-        if (GeoJSON.features.length > 0) map.fitBounds(processFeatureCollectionSpatially(map,GeoJSON));
-    }
-    else if (!isGeometryCollection(GeoJSON) || GeoJSON.geometries.length > 0) {
-        map.fitBounds(plotSpatially(map,GeoJSON).getBounds());
+    map = spatialVisualization();
+    var dataLayer = L.geoJson(
+        null,
+        {
+            pointToLayer: styleMarkerSpatially,
+            onEachFeature: styleFeatureSpatially
+        }
+    ).addTo(map);
+    processGeoJSONspatially(GeoJSON,dataLayer);
+    map.fitBounds(dataLayer);
+    
+    if (isFeatureCollection(GeoJSON)) {
+        var slider = L.control.sliderControl({
+            position: "topright",
+            layer: dataLayer,
+            range: true
+        });
+        map.addControl(slider);
+        slider.startSlider();
     }
 }

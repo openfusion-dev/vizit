@@ -39,15 +39,15 @@ function loadData ( type , file ) {
         })
         .fail(function ( response , error , statusText ) {
             problem(
-                "Error: " +statusText
-            );
-            problem(
                 (response.status === 404) ?
                     "Error: " +file+" could not be found.":
                     "Error: " +statusText
             );
         })
 }
+
+
+var map;  // TODO Fix this inelegant solution if possible.
 
 
 var  GET = parseQueryString(window.location);
