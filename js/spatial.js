@@ -112,7 +112,7 @@ function styleMarkerSpatially ( feature , coordinate ) {
 }
 
 
-function styleFeatureSpatially ( GeoJSONObject , layer ) {
+function styleObjectSpatially ( GeoJSONObject , layer ) {
     if (GeoJSONObject.properties != null) {
         var properties = GeoJSONObject.properties;
         var popup = "";
@@ -134,7 +134,7 @@ function visualizeSpatially ( GeoJSON ) {
         null,
         {
             pointToLayer: styleMarkerSpatially,
-            onEachFeature: styleFeatureSpatially
+            onEachFeature: styleObjectSpatially
         }
     ).addTo(map);
     processGeoJSONspatially(GeoJSON,dataLayer);

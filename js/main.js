@@ -1,6 +1,10 @@
 function problem ( message ) {
-    console.log(message);
-    alert(message);
+    if (message != null) {
+        console.log(message);
+        alert(message);
+    }
+    window.location.assign("http://dmtucker.github.io/vizit/");
+    //throw new Error(message); // This prevents further execution after redirecting.
 }
 
 
@@ -17,24 +21,19 @@ function parseQueryString ( uri ) {
 
 function loadData ( type , file ) {
     $.getJSON("data/"+file)
-        .done(function ( GeoJSON ) {  // TODO Consider validating in the visulization modules.
+        .done(function ( GeoJSON ) {
             if (!isGeoJSON(GeoJSON)) problem(
                 "Error: "+file+" must be a valid GeoJSON file!\n" +
                 "\n" +
                 "See http://geojson.org/ for more information."
             );
-            switch (type) {
+            else switch (type) {
                 case "map":
                 case "spatial":
                     visualizeSpatially(GeoJSON);
                     break;
-                case "timeline":
-                case "temporal":
-                    visualizeTemporally(GeoJSON);
-                    break;
                 default:
-                    problem('Only "spatial" and "temporal" visualizations are supported.');
-                    // TODO Redirect to or create (preferably the latter) a landing page.
+                    problem('Only "spatial" visualizations are supported.');
             }
         })
         .fail(function ( response , error , statusText ) {
@@ -53,7 +52,4 @@ var map;  // TODO Fix this inelegant solution if possible.
 var  GET = parseQueryString(window.location);
 if (!GET.type) GET.type = "spatial"
 if ( GET.data) loadData(GET.type.toLowerCase(),GET.data);
-else {
-    // TODO Redirect to or create (preferably the latter) a landing page.
-    alert("Welcome to Vizit!");
-}
+else problem();
