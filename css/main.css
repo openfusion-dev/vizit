@@ -69,6 +69,29 @@ body {
     padding: 0;
 }
 
+.popup {
+    text-align: left;
+}
+
+.popup > blockquote {
+    margin-left: 0;
+}
+
+.popup > cite {
+    font-style: italic;
+}
+
+.popup > img {
+    display: block;
+    width: 300px;
+    height: auto;
+}
+
+.popup > time {
+    display: block;
+    font-weight: bold;
+}
+
 
 /* ==========================================================================
    Media Queries

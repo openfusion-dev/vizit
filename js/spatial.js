@@ -9,7 +9,7 @@ function spatialVisualization ( ) {
             tileSize: 256,
             subdomains: "abc",
             errorTileUrl: "",
-            attribution: "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors",
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
             tms: false,
             continuousWorld: false,
             noWrap: true,
@@ -28,7 +28,7 @@ function spatialVisualization ( ) {
 }
 
 
-function processFeatureSpatially ( feature , layer ) {
+function processFeatureSpatially ( map , layer , feature ) {
     if (typeof feature.properties.radius === "number") {
         var pathOptions = {
             stroke: true,
@@ -69,24 +69,24 @@ function processFeatureSpatially ( feature , layer ) {
     }
     layer.addData(feature);
     if (isFeatureCollection(feature.properties.related)) {
-        processFeatureCollectionSpatially(feature.properties.related,layer);
+        processFeatureCollectionSpatially(map,layer,feature.properties.related);
     }
 }
 
 
-function processFeatureCollectionSpatially ( featureCollection , layer ) {
+function processFeatureCollectionSpatially ( map , layer , featureCollection ) {
     for (var featurei in featureCollection.features) {
-        processFeatureSpatially(featureCollection.features[featurei],layer);
+        processFeatureSpatially(map,layer,featureCollection.features[featurei]);
     }
 }
 
 
-function processGeoJSONspatially ( GeoJSON , layer ) {
+function processGeoJSONspatially ( map , layer , GeoJSON ) {
     if (isFeature(GeoJSON)) {
-        if (GeoJSON.geometry !== null) processFeatureSpatially(GeoJSON,layer);
+        if (GeoJSON.geometry !== null) processFeatureSpatially(map,layer,GeoJSON);
     }
     else if (isFeatureCollection(GeoJSON)) {
-        if (GeoJSON.features.length > 0) processFeatureCollectionSpatially(GeoJSON,layer);
+        if (GeoJSON.features.length > 0) processFeatureCollectionSpatially(map,layer,GeoJSON);
     }
     else if (!isGeometryCollection(GeoJSON) || GeoJSON.geometries.length > 0) {
         layer.addData(GeoJSON);
@@ -116,11 +116,11 @@ function styleObjectSpatially ( GeoJSONObject , layer ) {
     if (GeoJSONObject.properties != null) {
         var properties = GeoJSONObject.properties;
         var popup = "";
-        if (properties.time   != null) popup += "<span style='font-weight:bold;'>"+(new Date(properties.time))+"</span><br>";
-        if (properties.text   != null) popup += properties.text+"<br>";
-        if (properties.image  != null) popup += "<img style='width:300px; height:auto;' src='data:image/jpeg;base64,"+properties.image+"'><br>";
-        if (properties.source != null) popup += "<small style='font-style:italic;'>from "+properties.source+"</small>";
-        if (popup !== "") layer.bindPopup("<p style='text-align:left;'>"+popup+"</p>");
+        if (properties.time   != null) popup += '<time datetime="'+properties.time+'">'+(new Date(properties.time))+"</time>";
+        if (properties.text   != null) popup += "<blockquote>"+properties.text+"</blockquote>";
+        if (properties.image  != null) popup += '<img src="data:image/jpeg;base64,'+properties.image+'">';
+        if (properties.source != null) popup += '<cite>from '+properties.source+'</cite>';
+        if (popup !== "") layer.bindPopup('<div class="popup">'+popup+'</div>');
     }
 }
 
@@ -129,7 +129,7 @@ function visualizeSpatially ( GeoJSON ) {
     if (GeoJSON.OpenFusion != null) {
         GeoJSON = OpenFusionSpatialPreprocessor(GeoJSON);
     }
-    map = spatialVisualization();
+    var map = spatialVisualization();
     var dataLayer = L.geoJson(
         null,
         {
@@ -137,7 +137,7 @@ function visualizeSpatially ( GeoJSON ) {
             onEachFeature: styleObjectSpatially
         }
     ).addTo(map);
-    processGeoJSONspatially(GeoJSON,dataLayer);
+    processGeoJSONspatially(map,dataLayer,GeoJSON);
     map.fitBounds(dataLayer);
     
     if (isFeatureCollection(GeoJSON)) {

@@ -46,9 +46,6 @@ function loadData ( type , file ) {
 }
 
 
-var map;  // TODO Fix this inelegant solution if possible.
-
-
 var  GET = parseQueryString(window.location);
 if (!GET.type) GET.type = "spatial"
 if ( GET.data) loadData(GET.type.toLowerCase(),GET.data);
