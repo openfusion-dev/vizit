@@ -3,14 +3,13 @@ function problem ( message ) {
         console.log(message);
         alert(message);
     }
-    window.location.assign("http://dmtucker.github.io/vizit/");
-    //throw new Error(message); // This prevents further execution after redirecting.
+    window.location.assign("//dmtucker.github.io/vizit/");
 }
 
 
-function parseQueryString ( uri ) {
+function parseQueryString ( URI ) {
     var parameters = {}
-    uri.search.substr(1).split("&").forEach(
+    URI.search.substr(1).split("&").forEach(
         function ( item ) {
             parameters[item.split("=")[0]] = item.split("=")[1]
         }
@@ -19,34 +18,43 @@ function parseQueryString ( uri ) {
 }
 
 
-function loadData ( type , file ) {
-    $.getJSON("data/"+file)
-        .done(function ( GeoJSON ) {
-            if (!isGeoJSON(GeoJSON)) problem(
-                "Error: "+file+" must be a valid GeoJSON file!\n" +
-                "\n" +
-                "See http://geojson.org/ for more information."
-            );
-            else switch (type) {
-                case "map":
-                case "spatial":
-                    visualizeSpatially(GeoJSON);
-                    break;
-                default:
-                    problem('Only "spatial" visualizations are supported.');
+function loadData ( resource , type ) {
+    $.getJSON("data/"+resource)
+        .done(
+            function ( GeoJSON ) {
+                if (!isGeoJSON(GeoJSON)) problem(
+                    "Error: "+resource+" must be a valid GeoJSON resource!\n" +
+                    "\n" +
+                    "See http://geojson.org/ for more information."
+                );
+                else switch (type) {
+                    case "map":
+                    case "spatial":
+                        visualizeSpatially(GeoJSON);
+                        break;
+                    default:
+                        var supported = [
+                            "spatial"
+                        ]
+                        problem("Supported Visualizations: "+supported);
+                }
             }
-        })
-        .fail(function ( response , error , statusText ) {
-            problem(
-                (response.status === 404) ?
-                    "Error: " +file+" could not be found.":
-                    "Error: " +statusText
-            );
-        })
+        )
+        .fail(
+            function ( response , error , statusText ) {
+                problem(
+                    (response.status == 404) ?
+                        "Error: " +resource+" could not be found.":
+                        "Error: " +statusText
+                );
+            }
+        );
 }
 
 
-var  GET = parseQueryString(window.location);
-if (!GET.type) GET.type = "spatial"
-if ( GET.data) loadData(GET.type.toLowerCase(),GET.data);
-else problem();
+(function ( ) {
+    var GET = parseQueryString(window.location);
+    if (typeof GET.type === "undefined") GET.type = "spatial"
+    if (GET.data) loadData(GET.data,GET.type.toLowerCase());
+    else problem();
+})();

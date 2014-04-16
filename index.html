@@ -5,9 +5,10 @@
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
     <head>
         <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <title>Vizit</title>
+        <meta name="application-name" content="Vizit">
         <meta name="description" content="OpenFusion GIS Visualizer">
+        <meta name="author" content="David Tucker">
         <meta name="viewport" content="width=device-width">
         
         <link rel="icon" type="image/png" href="img/icon.png">
@@ -19,29 +20,30 @@
         <link rel="apple-touch-icon" sizes="144x144" href="apple-touch-icon-144x144-precomposed.png">
         
         <link rel="author"  type="text/plain" href="humans.txt">
-        <link rel="license" type="text/plain" href="https://www.gnu.org/licenses/gpl.txt">
+        <link rel="license" type="text/plain" href="//www.gnu.org/licenses/gpl.txt">
         
         <link rel="stylesheet" href="css/normalize.min.css">
         <link rel="stylesheet" href="css/main.css">
         
-        <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
-        
-        <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" type="text/css">
-        <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.2/jquery.ui.touch-punch.min.js"></script>
+        <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+        <script src="//code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
         
         <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css">
         <script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
         
+        <script src="js/vendor/jquery.ui.touch-punch.min.js"></script>
         <script src="js/vendor/leaflet.SliderControl.min.js"></script>
-        <script src="js/vendor/modernizr-2.6.2.min.js"></script>
     </head>
     <body>
         <!--[if lt IE 7]>
-            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+            <p class="outdated">
+                You are using an <strong>outdated</strong> browser.
+                Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.
+            </p>
         <![endif]-->
-        
-        <div id="canvas" style="height:100%; width:100%;"></div>
+        <a id="version" href="//dmtucker.github.io/vizit/">Vizit <abbr title="version">v</abbr>2.3.2</a>
+        <div id="canvas"></div>
         
         <script src="js/GeoJSON.js"></script>
         <script src="js/OpenFusion.js"></script>

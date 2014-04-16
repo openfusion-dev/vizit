@@ -1,36 +1,8 @@
-# humanstxt.org/
-# The humans responsible & technology colophon
-
-# TEAM
-
-    OpenFusion Vizit Developer: David Tucker
+/* TEAM */
+    Developer: David Tucker
     GitHub: dmtucker
-    From: Santa Cruz, California, US
+    Twitter: @dmtucker
 
-    OpenFusion Web Developer: Bardia Keyoumarsi
+/* THANKS */
+    OpenFusion Developer: Bardia Keyoumarsi
     GitHub: bkeyoumarsi
-    From: Santa Cruz, California, US
-
-    OpenFusion iOS Developer: Michael Baptist
-    GitHub: mbaptist23
-    From: Santa Cruz, California, US
-
-    OpenFusion Sensor Firmware: Michael Bennett
-    GitHub: mick31
-    From: Santa Cruz, California, US
-
-    OpenFusion Sensor Hardware: Vincent Lantaca
-    From: Santa Cruz, California, US
-
-# THANKS
-
-    Project Advisor: David Munday
-    From: Santa Cruz, California, US
-
-    Project Advisor: Mike Goldman
-    From: Livermore, California, US
-
-# TECHNOLOGY COLOPHON
-
-    HTML5, CSS3
-    jQuery, Modernizr
