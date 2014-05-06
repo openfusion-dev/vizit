@@ -44,6 +44,7 @@ function preprocessOpenFusionSpatially ( GeoJSON ) {
                 var epicenters = GeoJSON.features;
                 for (var epicenteri in epicenters) {
                     var epicenter = GeoJSON.features[epicenteri];
+                    if (typeof epicenter.properties.related == "undefined") continue;
                     if (isFeatureCollection(epicenter.properties.related)) {
                         var aftershocks = epicenter.properties.related;
                         for (var aftershocki in aftershocks.features) {
