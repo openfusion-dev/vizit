@@ -66,7 +66,69 @@ html, body {
 }
 
 body {
+    background-color: #000;
+    background-image: url("../img/world.jpg");
+    background-size: 100% 100%;
+    background-attachment: fixed;
     padding: 0;
+    text-align: center;
+}
+
+article.plain {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 1em;
+    border: 0.2em solid #000;
+    border-radius: 0.5em;
+    max-width: 25em;
+    background-color: rgba(255,255,255,0.8);
+    padding: 1em;
+    text-align: left;
+}
+
+article.plain > address {
+    font-size: 0.8em;
+}
+
+article.plain > blockquote,
+article.popup > blockquote {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+article.plain > cite,
+article.popup > cite {
+    font-style: italic;
+}
+
+article.plain > img,
+article.popup > img {
+    display: block;
+    margin: auto;
+    border-radius: 0.2em;
+    width: 300px;
+}
+
+article.plain > time,
+article.popup > time {
+    display: block;
+    font-weight: bold;
+}
+
+article.popup {
+    text-align: left;
+}
+
+article.epicenter {
+    border-color: #ccc;
+    background-color: rgba(0,0,0,0.6);
+    color: #eee;
+}
+
+article.aftershock {
+    border-color: #000;
+    background-color: rgba(255,255,255,0.8);
+    color: #000;
 }
 
 #canvas {
@@ -74,31 +136,17 @@ body {
     height: 100%;
 }
 
-.popup {
-    text-align: left;
-}
-
-.popup > blockquote {
-    margin-left: 0;
-}
-
-.popup > cite {
-    font-style: italic;
-}
-
-.popup > img {
-    display: block;
-    width: 300px;
-    height: auto;
-}
-
-.popup > time {
-    display: block;
-    font-weight: bold;
+#toggle {
+    display: none;
+    position: fixed;
+    bottom: 4em;
+    left: 1em;
+    z-index: 1;
+    font-size: 0.75em;
 }
 
 #version {
-    position: absolute;
+    position: fixed;
     bottom: 0;
     left: 0;
     z-index: 1;
