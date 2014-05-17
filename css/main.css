@@ -83,6 +83,7 @@ article.plain {
     max-width: 25em;
     background-color: rgba(255,255,255,0.8);
     padding: 1em;
+    overflow-x: hidden; /* TODO This is ideally 'scroll', but a scrollbar should only show when necessary. */
     text-align: left;
 }
 
@@ -137,7 +138,6 @@ article.aftershock {
 }
 
 #toggle {
-    display: none;
     position: fixed;
     bottom: 4em;
     left: 1em;

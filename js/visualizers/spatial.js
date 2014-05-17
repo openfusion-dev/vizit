@@ -58,10 +58,10 @@ function spatialFeatureStylist ( Feature , coordinate ) {
 }
 
 
-function spatialGeoJSONStylist ( GeoJSON , layer ) {
+function spatialGeoJSONStylist ( geojson , layer ) {
     // Render each Feature's properties.
-    if (GeoJSON.properties != null) {
-        var popup = OpenFusionHTMLFeature(GeoJSON);  // TODO This does not respect GeoJSON styling of non-OpenFusion files!
+    if (geojson.properties != null) {
+        var popup = OpenFusionHTMLFeature(geojson);  // TODO This does not respect GeoJSON styling of non-OpenFusion files!
         if (popup !== '') layer.bindPopup(
             '<article class="popup">'+popup+'</article>'
         );
@@ -139,7 +139,7 @@ function spatialFeatureProcessor ( map , layer , Feature ) {
         ).addTo(map);
     }
     layer.addData(Feature);
-    if (isFeatureCollection(Feature.properties.related)) {
+    if (GeoJSON.isFeatureCollection(Feature.properties.related)) {
         spatialFeatureCollectionProcessor(map,layer,Feature.properties.related);
     }
 }
@@ -153,45 +153,52 @@ function spatialFeatureCollectionProcessor ( map , layer , FeatureCollection ) {
 }
 
 
-function spatialGeoJSONProcessor ( map , layer , GeoJSON ) {
+function spatialGeoJSONProcessor ( map , layer , geojson ) {
     // Plot GeoJSON data.
-    if (isFeature(GeoJSON)) {
-        if (GeoJSON.geometry !== null) {
-            spatialFeatureProcessor(map,layer,GeoJSON);
+    if (GeoJSON.isFeature(geojson)) {
+        if (geojson.geometry !== null) {
+            spatialFeatureProcessor(map,layer,geojson);
         }
     }
-    else if (isFeatureCollection(GeoJSON)) {
-        if (GeoJSON.features.length > 0) {
-            spatialFeatureCollectionProcessor(map,layer,GeoJSON);
+    else if (GeoJSON.isFeatureCollection(geojson)) {
+        if (geojson.features.length > 0) {
+            spatialFeatureCollectionProcessor(map,layer,geojson);
         }
     }
-    else if (!isGeometryCollection(GeoJSON) || GeoJSON.geometries.length > 0) {
-        layer.addData(GeoJSON);
+    else if (!GeoJSON.isGeometryCollection(geojson) || geojson.geometries.length > 0) {
+        layer.addData(geojson);
     }
 }
 
 
-function spatialVisualizer ( GeoJSON , canvasID ) {
+function spatialVisualizer ( geojson , canvasID ) {
     // Instate a spatial visualization.
-    if (GeoJSON.OpenFusion != null) OpenFusionSpatialPreprocessor(GeoJSON);
-    var map = spatialVisualization(canvasID);
-    var dataLayer = L.geoJson(
-        null,
-        {
-            pointToLayer: spatialFeatureStylist,
-            onEachFeature: spatialGeoJSONStylist
-        }
-    ).addTo(map);
-    spatialGeoJSONProcessor(map,dataLayer,GeoJSON);
-    map.fitBounds(dataLayer);
+    if (geojson.OpenFusion != null) OpenFusion.spatial.preprocessor(geojson);
     
-    if (isFeatureCollection(GeoJSON) && GeoJSON.features.length > 1) {
-        var slider = L.control.sliderControl({
-            position: 'topright',
-            layer: dataLayer,
-            range: true
-        });
-        map.addControl(slider);
-        slider.startSlider();
+    var map = spatialVisualization(canvasID);
+    try {
+        var dataLayer = L.geoJson(
+            null,
+            {
+                pointToLayer: spatialFeatureStylist,
+                onEachFeature: spatialGeoJSONStylist
+            }
+        ).addTo(map);
+        spatialGeoJSONProcessor(map,dataLayer,geojson);
+        map.fitBounds(dataLayer);
+        
+        if (GeoJSON.isFeatureCollection(geojson) && geojson.features.length > 1) {
+            var slider = L.control.sliderControl({
+                position: 'topright',
+                layer: dataLayer,
+                range: true
+            });
+            map.addControl(slider);
+            slider.startSlider();
+        }
     }
+    catch (error) {
+        console.error(error.message);
+    }
+    return map;
 }

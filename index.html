@@ -1,8 +1,4 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
     <head>
         <meta charset="utf-8">
         <title>Vizit</title>
@@ -12,7 +8,6 @@
         <meta name="viewport" content="width=device-width">
         
         <link rel="icon" type="image/png" href="img/icon.png">
-        <!--[if IE]><link rel="shortcut icon" href="favicon.ico"/><![endif]-->
         <link rel="apple-touch-icon" href="apple-touch-icon-precomposed.png">
         <link rel="apple-touch-icon" sizes="57x57"   href="apple-touch-icon-57x57-precomposed.png">
         <link rel="apple-touch-icon" sizes="72x72"   href="apple-touch-icon-72x72-precomposed.png">
@@ -36,20 +31,26 @@
         <script src="js/vendor/leaflet.SliderControl.min.js"></script>
     </head>
     <body>
-        <!--[if lt IE 7]>
-            <p class="outdated">
-                You are using an <strong>outdated</strong> browser.
-                Please <a href="//browsehappy.com/">upgrade your browser</a> to improve your experience.
-            </p>
-        <![endif]-->
         <a id="version" href="//dmtucker.github.io/vizit/">Vizit <abbr title="version">v</abbr>2.3.5b</a>
         <button id="toggle"></button>
         <div id="canvas"></div>
         <script src="js/GeoJSON.js"></script>
         <script src="js/OpenFusion.js"></script>
+        <script>
+            var vizit = {
+                canvas: document.getElementById('canvas'),
+                data: null,
+                supported_visualizations: [
+                    'plain',
+                    'spatial'
+                ],
+                toggle: document.getElementById('toggle'),  // TODO Internalize this.
+                visualization: 'plain'
+            }
+        </script>
         <script src="js/visualizers/plain.js"></script>
         <script src="js/visualizers/spatial.js"></script>
-        <script src="js/vizit.js"></script>
+        <script src="js/Vizit.js"></script>
         <script src="js/plugins.js"></script>
         <script src="js/main.js"></script>
     </body>

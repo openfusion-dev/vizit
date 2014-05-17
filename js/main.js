@@ -1,4 +1,4 @@
-// This script depends on jQuery and vizit.js.
+// This script depends on jQuery and Vizit.js.
 
 
 function parseQueryString ( URI ) {
@@ -21,12 +21,12 @@ function parseQueryString ( URI ) {
         $.getJSON('data/'+GET.data)
             .done(
                 function ( JSON ) {
-                    VizitInit(JSON,GET.type,'canvas','toggle');
+                    Vizit.init(JSON,GET.type,'canvas','toggle');
                 }
             )
             .fail(
                 function ( response , error , statusText ) {
-                    VizitError(
+                    Vizit.error(
                         (response.status == 404) ?
                             'Error: ' +GET.data+' could not be found.':
                             'Error: ' +statusText
@@ -34,5 +34,5 @@ function parseQueryString ( URI ) {
                 }
             );
     }
-    else VizitError();
+    else Vizit.error();  // TODO This is annoying.
 })();
