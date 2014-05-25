@@ -1,4 +1,4 @@
-// This script depends on jQuery and Vizit.js.
+// This script depends on jQuery and Vizit.
 
 
 function parseQueryString ( URI ) {
@@ -34,5 +34,5 @@ function parseQueryString ( URI ) {
                 }
             );
     }
-    else Vizit.error();  // TODO This is annoying.
+    else Vizit.error();  // TODO This is annoying for the user.
 })();

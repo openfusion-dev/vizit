@@ -1,13 +1,16 @@
-// This library depends on jQuery, and OpenFusion.js.
+// This library depends on jQuery and Vizit.
 
 
-function plainFeatureProcessor ( Feature ) {
+exports.version = '0.1.0';
+
+
+exports.FeatureProcessor = function ( Feature ) {
     // Generate HTML for each GeoJSON Feature.
     if (Feature.properties != null) {
-        var canvas = this.canvas;
+        //var canvas = this.canvas;
         var article = document.createElement('article');
         article.className = 'plain';
-        article.innerHTML = OpenFusionHTMLFeature(Feature);  // TODO This does not respect GeoJSON styling of non-OpenFusion files!
+        article.innerHTML = Vizit.HTMLFeature(Feature);
         if (typeof Feature.properties.location === 'string') {
             article.innerHTML +=
                         '<address>'+Feature.properties.location+'</address>';
@@ -32,33 +35,24 @@ function plainFeatureProcessor ( Feature ) {
                     console.error('Error: '+statusText);
                 }
             );
+        else if (article.innerHTML != '') canvas.appendChild(article);
         return article;
     }
 }
 
-function plainEpicenterHandler ( Feature ) {
+
+exports.FeatureHandler = function ( Feature , isEpicenter ) {
     // Process GeoJSON Features.
-    var article = plainFeatureProcessor(Feature);
-    if (typeof article !== 'undefined') article.className += ' epicenter';
-}
-
-function plainAftershockHandler ( Feature ) {
-    // Process related Features in OpenFusion GeoJSON Features.
-    var article = plainFeatureProcessor(Feature);
-    if (typeof article !== 'undefined') article.className += ' aftershock';
+    var article = exports.FeatureProcessor(Feature);
+    if (typeof article !== 'undefined') {
+        article.className += (isEpicenter) ? ' epicenter' : ' aftershock';
+    }
 }
 
 
-function plainVisualizer ( geojson , canvasID ) {
+exports.visualizer = function ( geojson , canvasID ) {
     // Instate a plain visualization.
-    if (geojson.OpenFusion != null) OpenFusion.plain.preprocessor(geojson);
-    
     var context = {canvas:document.getElementById(canvasID)};
-    var epicenterCallback = plainEpicenterHandler.bind(context);
-    var aftershockCallback = plainAftershockHandler.bind(context);
-    OpenFusionMapGeoJSON(  // TODO This adds an unnecessary dependency on OpenFusion.js!
-        geojson,
-        epicenterCallback,
-        aftershockCallback
-    );
+    exports.FeatureProcessor.bind(context);
+    Vizit.mapGeoJSON(geojson,exports.FeatureHandler);
 }

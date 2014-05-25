@@ -1,7 +1,10 @@
-// This library depends on Leaflet, LeafletSlider, GeoJSON.js, and OpenFusion.js.
+// This library depends on Leaflet, LeafletSlider, and GeoJSON.
 
 
-function spatialVisualization ( canvas ) {
+exports.version = '0.1.0';
+
+
+exports.visualization = function ( canvas ) {
     // Instantiate a spatial visualization, and add it to the canvas.
     var map = L.map(canvas).setView([0,0],3);
     L.tileLayer(
@@ -35,7 +38,7 @@ function spatialVisualization ( canvas ) {
 }
 
 
-function spatialFeatureStylist ( Feature , coordinate ) {
+exports.FeatureStylist = function ( Feature , coordinate ) {
     // Apply marker styling from each Feature's properties.
     if (Feature.properties != null) {
         var properties = Feature.properties;
@@ -58,10 +61,10 @@ function spatialFeatureStylist ( Feature , coordinate ) {
 }
 
 
-function spatialGeoJSONStylist ( geojson , layer ) {
+exports.GeoJSONStylist = function ( geojson , layer ) {
     // Render each Feature's properties.
     if (geojson.properties != null) {
-        var popup = OpenFusionHTMLFeature(geojson);  // TODO This does not respect GeoJSON styling of non-OpenFusion files!
+        var popup = Vizit.HTMLFeature(geojson);
         if (popup !== '') layer.bindPopup(
             '<article class="popup">'+popup+'</article>'
         );
@@ -69,9 +72,10 @@ function spatialGeoJSONStylist ( geojson , layer ) {
 }
 
 
-function spatialFeatureProcessor ( map , layer , Feature ) {
+exports.FeatureProcessor = function ( map , layer , Feature ) {
     // Plot each Feature with its accompanying radius and related features.
-    if (typeof Feature.properties.radius === 'number') {
+    if (Feature.geometry == null) return;
+    if (Feature.properties != null && typeof Feature.properties.radius === 'number') {
         var pathOptions = {
             stroke: true,
             color: '#000',
@@ -140,29 +144,31 @@ function spatialFeatureProcessor ( map , layer , Feature ) {
     }
     layer.addData(Feature);
     if (GeoJSON.isFeatureCollection(Feature.properties.related)) {
-        spatialFeatureCollectionProcessor(map,layer,Feature.properties.related);
+        exports.FeatureCollectionProcessor(map,layer,Feature.properties.related);
     }
 }
 
 
-function spatialFeatureCollectionProcessor ( map , layer , FeatureCollection ) {
+exports.FeatureCollectionProcessor = function ( map , layer , FeatureCollection ) {
     // Process each feature in a FeatureCollection individually.
-    for (var featurei in FeatureCollection.features) {
-        spatialFeatureProcessor(map,layer,FeatureCollection.features[featurei]);
-    }
+    FeatureCollection.features.forEach(
+        function ( feature ) {
+            exports.FeatureProcessor(map,layer,feature);
+        }
+    );
 }
 
 
-function spatialGeoJSONProcessor ( map , layer , geojson ) {
+exports.GeoJSONProcessor = function ( map , layer , geojson ) {
     // Plot GeoJSON data.
     if (GeoJSON.isFeature(geojson)) {
         if (geojson.geometry !== null) {
-            spatialFeatureProcessor(map,layer,geojson);
+            exports.FeatureProcessor(map,layer,geojson);
         }
     }
     else if (GeoJSON.isFeatureCollection(geojson)) {
         if (geojson.features.length > 0) {
-            spatialFeatureCollectionProcessor(map,layer,geojson);
+            exports.FeatureCollectionProcessor(map,layer,geojson);
         }
     }
     else if (!GeoJSON.isGeometryCollection(geojson) || geojson.geometries.length > 0) {
@@ -171,20 +177,18 @@ function spatialGeoJSONProcessor ( map , layer , geojson ) {
 }
 
 
-function spatialVisualizer ( geojson , canvasID ) {
+exports.visualizer = function ( geojson , canvasID ) {
     // Instate a spatial visualization.
-    if (geojson.OpenFusion != null) OpenFusion.spatial.preprocessor(geojson);
-    
-    var map = spatialVisualization(canvasID);
-    try {
+    var map = exports.visualization(canvasID);
+    if (!GeoJSON.isEmpty(geojson)) try {
         var dataLayer = L.geoJson(
             null,
             {
-                pointToLayer: spatialFeatureStylist,
-                onEachFeature: spatialGeoJSONStylist
+                pointToLayer: exports.FeatureStylist,
+                onEachFeature: exports.GeoJSONStylist
             }
         ).addTo(map);
-        spatialGeoJSONProcessor(map,dataLayer,geojson);
+        exports.GeoJSONProcessor(map,dataLayer,geojson);
         map.fitBounds(dataLayer);
         
         if (GeoJSON.isFeatureCollection(geojson) && geojson.features.length > 1) {

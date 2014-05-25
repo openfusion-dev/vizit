@@ -7,7 +7,7 @@
         <meta name="author" content="David Tucker">
         <meta name="viewport" content="width=device-width">
         
-        <link rel="icon" type="image/png" href="img/icon.png">
+        <link rel="icon" type="image/png" href="images/icon.png">
         <link rel="apple-touch-icon" href="apple-touch-icon-precomposed.png">
         <link rel="apple-touch-icon" sizes="57x57"   href="apple-touch-icon-57x57-precomposed.png">
         <link rel="apple-touch-icon" sizes="72x72"   href="apple-touch-icon-72x72-precomposed.png">
@@ -17,8 +17,8 @@
         <link rel="author"  type="text/plain" href="humans.txt">
         <link rel="license" type="text/plain" href="//www.gnu.org/licenses/gpl.txt">
         
-        <link rel="stylesheet" href="css/normalize.min.css">
-        <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="styles/normalize.min.css">
+        <link rel="stylesheet" href="styles/main.css">
         
         <script src="//code.jquery.com/jquery-2.1.0.min.js"></script>
         <script src="//code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
@@ -27,31 +27,17 @@
         <link rel="stylesheet" href="//cdn.leafletjs.com/leaflet-0.7.2/leaflet.css">
         <script src="//cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
         
-        <script src="js/vendor/jquery.ui.touch-punch.min.js"></script>
-        <script src="js/vendor/leaflet.SliderControl.min.js"></script>
+        <script src="scripts/vendor/jquery.ui.touch-punch.min.js"></script>
+        <script src="scripts/vendor/leaflet.SliderControl.min.js"></script>
     </head>
     <body>
-        <a id="version" href="//dmtucker.github.io/vizit/">Vizit <abbr title="version">v</abbr>2.3.5b</a>
+        <a id="version" href="//dmtucker.github.io/vizit/">Vizit <abbr title="version">v</abbr>2.4.0b</a>
         <button id="toggle"></button>
         <div id="canvas"></div>
-        <script src="js/GeoJSON.js"></script>
-        <script src="js/OpenFusion.js"></script>
-        <script>
-            var vizit = {
-                canvas: document.getElementById('canvas'),
-                data: null,
-                supported_visualizations: [
-                    'plain',
-                    'spatial'
-                ],
-                toggle: document.getElementById('toggle'),  // TODO Internalize this.
-                visualization: 'plain'
-            }
-        </script>
-        <script src="js/visualizers/plain.js"></script>
-        <script src="js/visualizers/spatial.js"></script>
-        <script src="js/Vizit.js"></script>
-        <script src="js/plugins.js"></script>
-        <script src="js/main.js"></script>
+        <script src="scripts/geojson-0.1.0.min.js"></script>
+        <script src="scripts/openfusion-0.1.0.min.js"></script>
+        <script src="scripts/vizit-0.1.0.min.js"></script>
+        <script src="scripts/plugins.js"></script>
+        <script src="scripts/main.js"></script>
     </body>
 </html>
