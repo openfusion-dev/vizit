@@ -180,29 +180,24 @@ exports.GeoJSONProcessor = function ( map , layer , geojson ) {
 exports.visualizer = function ( geojson , canvasID ) {
     // Instate a spatial visualization.
     var map = exports.visualization(canvasID);
-    if (!GeoJSON.isEmpty(geojson)) try {
-        var dataLayer = L.geoJson(
-            null,
-            {
-                pointToLayer: exports.FeatureStylist,
-                onEachFeature: exports.GeoJSONStylist
-            }
-        ).addTo(map);
-        exports.GeoJSONProcessor(map,dataLayer,geojson);
-        map.fitBounds(dataLayer);
-        
-        if (GeoJSON.isFeatureCollection(geojson) && geojson.features.length > 1) {
-            var slider = L.control.sliderControl({
-                position: 'topright',
-                layer: dataLayer,
-                range: true
-            });
-            map.addControl(slider);
-            slider.startSlider();
+    var dataLayer = L.geoJson(
+        null,
+        {
+            pointToLayer: exports.FeatureStylist,
+            onEachFeature: exports.GeoJSONStylist
         }
-    }
-    catch (error) {
-        console.error(error.message);
+    ).addTo(map);
+    exports.GeoJSONProcessor(map,dataLayer,geojson);
+    if (dataLayer.getBounds().isValid()) map.fitBounds(dataLayer);
+    
+    if (GeoJSON.isFeatureCollection(geojson) && geojson.features.length > 1) {
+        var slider = L.control.sliderControl({
+            position: 'topright',
+            layer: dataLayer,
+            range: true
+        });
+        map.addControl(slider);
+        slider.startSlider();
     }
     return map;
 }
