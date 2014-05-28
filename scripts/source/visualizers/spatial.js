@@ -190,6 +190,7 @@ exports.visualizer = function ( geojson , canvasID ) {
         ).addTo(map);
         exports.GeoJSONProcessor(map,dataLayer,geojson);
         map.fitBounds(dataLayer);
+        L.control.scale().addTo(map);
         
         if (GeoJSON.isFeatureCollection(geojson) && geojson.features.length > 1) {
             var slider = L.control.sliderControl({
