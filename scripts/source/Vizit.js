@@ -47,6 +47,7 @@ window.Vizit = {
         switch (type.toLowerCase()) {
             case 'spatial':
                 vizit.visualization = 'spatial';
+                document.getElementById('version').style.visibility = 'hidden';
                 if (typeof OpenFusion !== 'undefined' &&
                     vizit.data.OpenFusion != null
                 ) {
@@ -56,6 +57,7 @@ window.Vizit = {
                 break;
             case 'plain':
                 vizit.visualization = 'plain';
+                document.getElementById('version').style.visibility = 'visible';
                 if (typeof OpenFusion !== 'undefined' &&
                     vizit.data.OpenFusion != null
                 ) {
