@@ -3,6 +3,7 @@
 
 var OpenFusion = {
     
+    
     error: function ( name ) {
         // Handle OpenFusion errors.
         var message;
@@ -20,36 +21,35 @@ var OpenFusion = {
     },
     
     
-// TODO ///////////////////////////////////////////////////////////////////// 80
-    mapGeoJSON: function (
+    map: function (  // TODO Fix this name.
         geojson,
         epicenterHandler,
         aftershockHandler
     ) {
         // Apply functions to each epicenter or aftershock.
         if (GeoJSON.isFeatureCollection(geojson)) {
-            GeoJSON.mapFeatures(
-                geojson,
+            GeoJSON.features(geojson).map(
                 function ( epicenter ) {
                     if (typeof epicenterHandler === 'function') {
                         epicenterHandler(epicenter);
                     }
-                    if (typeof epicenter.properties.related === 'undefined') return;
-                    if (GeoJSON.isFeatureCollection(epicenter.properties.related)) {
+                    var related = epicenter.properties.related;
+                    if (GeoJSON.isFeatureCollection(related)) {
                         if (typeof aftershockHandler === 'function') {
-                            epicenter.properties.related.features.forEach(aftershockHandler);
+                            related.features.forEach(aftershockHandler);
                         }
                     }
-                    else OpenFusion.error('malformed');
+                    else if (related != null) OpenFusion.error('malformed');
                 }
             );
         }
         else OpenFusion.error('malformed');
     },
-///////////////////////////////////////////////////////////////////////////// 80
     
     
     plain: {
+        
+        
         preprocessor: function ( geojson ) {
             // Prepare OpenFusion GeoJSON files for plain visualization.
             switch (geojson.OpenFusion) {
@@ -64,17 +64,22 @@ var OpenFusion = {
             }
             return geojson;
         }
+        
+        
     },
+    
     
     spatial: {
         
-        epicenterHandler: function ( feature ) {
+        
+        epicenterProcessor: function ( feature ) {
             // Prepare OpenFusion GeoJSON epicenter features for visualization.
             var properties = feature.properties;
             properties.marker = 'Marker';
         },
         
-        aftershockHandler: function ( feature ) {
+        
+        aftershockProcessor: function ( feature ) {
             // Prepare OpenFusion GeoJSON aftershock features for visualization.
             var properties = feature.properties;
             properties.marker = 'CircleMarker';
@@ -101,6 +106,7 @@ var OpenFusion = {
             }
         },
         
+        
         preprocessor: function ( geojson ) {
             // Prepare OpenFusion GeoJSON files for spatial visualization.
             switch (geojson.OpenFusion) {
@@ -111,12 +117,16 @@ var OpenFusion = {
                 case '3':
                 case '4':
                 case '5':
-                    OpenFusion.mapGeoJSON(
+                    OpenFusion.map(
                         geojson,
-                        OpenFusion.spatial.epicenterHandler,
-                        OpenFusion.spatial.aftershockHandler
+                        OpenFusion.spatial.epicenterProcessor,
+                        OpenFusion.spatial.aftershockProcessor
                     );
             }
         }
+        
+        
     }
+    
+    
 };

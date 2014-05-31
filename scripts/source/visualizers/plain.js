@@ -4,7 +4,7 @@
 exports.version = '0.1.0';
 
 
-exports.FeatureProcessor = function ( Feature ) {
+exports.renderFeature = function ( Feature ) {
     // Generate HTML for each GeoJSON Feature.
     if (Feature.properties != null) {
         //var canvas = this.canvas;
@@ -41,18 +41,19 @@ exports.FeatureProcessor = function ( Feature ) {
 }
 
 
-exports.FeatureHandler = function ( Feature , isEpicenter ) {
-    // Process GeoJSON Features.
-    var article = exports.FeatureProcessor(Feature);
-    if (typeof article !== 'undefined') {
-        article.className += (isEpicenter) ? ' epicenter' : ' aftershock';
-    }
-}
-
-
 exports.visualizer = function ( geojson , canvasID ) {
     // Instate a plain visualization.
     var context = {canvas:document.getElementById(canvasID)};
     exports.FeatureProcessor.bind(context);
-    Vizit.mapGeoJSON(geojson,exports.FeatureHandler);
+    Vizit.features(geojson).map(
+        function ( Feature ) {
+            var article = exports.renderFeature(Feature);
+            if (typeof article !== 'undefined') {
+                article.className +=
+                    (GeoJSON.isFeatureCollection(Feature.properties.related)) ?
+                        ' epicenter':
+                        ' aftershock';
+            }
+        }
+    );
 }

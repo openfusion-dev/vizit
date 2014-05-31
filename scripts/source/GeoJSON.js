@@ -4,6 +4,7 @@
 var GeoJSON = {
     
     
+    // Versions below 1.0.0 cannot validate the entire GeoJSON specification.
     version: '0.1.0',
     
     
@@ -145,15 +146,17 @@ var GeoJSON = {
     
     
     isEmptyFeature: function ( x ) {
+        // Validate an empty GeoJSON Feature.
         return (
             GeoJSON.isFeature(x) &&
-            x.geometry == null &&
-            x.properties == null
+            x.geometry === null &&
+            x.properties === {}
         );
     },
     
     
     isEmptyFeatureCollection: function ( x ) {
+        // Validate an empty GeoJSON FeatureCollection.
         return (
             GeoJSON.isFeatureCollection(x) &&
             (
@@ -165,6 +168,7 @@ var GeoJSON = {
     
     
     isEmptyGeometryCollection: function ( x ) {
+        // Validte an empty GeoJSON GeometryCollection.
         return (
             GeoJSON.isGeometryCollection(x) &&
             x.geometries.length == 0
@@ -182,15 +186,105 @@ var GeoJSON = {
     },
     
     
-// TODO ///////////////////////////////////////////////////////////////////// 80
-    mapFeatures: function ( geojson , FeatureCallback ) {
-        // Apply a function to GeoJSON Feature objects.
-        if (typeof FeatureCallback === 'function') {
-            if (GeoJSON.isFeatureCollection(geojson)) {
-                geojson.features.forEach(FeatureCallback);
-            }
-            else if (GeoJSON.isFeature(geojson)) FeatureCallback(geojson);
+    Point: function ( latitude , longitude , altitude ) {
+        // Create a valid GeoJSON Point geometry.
+        var Point = null;
+        if (typeof longitude === 'number' && typeof latitude === 'number') {
+            Point = {
+                type: 'Point',
+                coordinates: [longitude,latitude]
+            };
+            if (typeof altitude === 'number') Point.coordinates.push(altitude);
         }
+        return Point;
+    },
+    
+    
+    Feature: function ( geometry , properties ) {
+        // Create a valid GeoJSON Feature.
+        var Feature = {
+            type: 'Feature',
+            geometry: null,
+            properties: (typeof properties === 'object') ? properties : {}
+        };
+        if (GeoJSON.isGeometry(geometry)) Feature.geometry = geometry;
+        return Feature;
+    },
+    
+    
+    FeatureCollection: function ( Features ) {
+        // Create a valid GeoJSON FeatureCollection.
+        var FeatureCollection = {
+            type: 'FeatureCollection',
+            features: []
+        };
+        if (GeoJSON.isFeature(Features)) {
+            FeatureCollection.features.push(Features);
+        }
+        else if (Array.isArray(Features)) Features.forEach(
+            function ( Feature ) {
+                if (GeoJSON.isFeature(Feature)) {
+                    FeatureCollection.features.push(Feature);
+                }
+            }
+        );
+        return FeatureCollection;
+    },
+    
+    
+    GeometryCollection: function ( Geometries ) {
+        // Create a valid GeoJSON GeometryCollection.
+        var GeometryCollection = {
+            type: 'GeometryCollection',
+            geometries: []
+        };
+        if (GeoJSON.isGeometry(Geometries)) {
+            GeometryCollection.geometries.push(Geometries);
+        }
+        else if (Array.isArray(Geometries)) Geometries.forEach(
+            function ( Geometry ) {
+                if (GeoJSON.isGeometry(Geometry)) {
+                    GeometryCollection.geometries.push(Geometry);
+                }
+            }
+        );
+        return GeometryCollection;
+    },
+    
+    
+    features: function ( geojson ) {
+        // Find all features in a GeoJSON object.
+        var features = [];
+        if (GeoJSON.isFeatureCollection(geojson)) geojson.features.forEach(
+            function ( Feature ) {
+                GeoJSON.features(Feature).forEach(
+                    function ( Feature ) {
+                        features.push(Feature);
+                    }
+                );
+            }
+        );
+        else if (GeoJSON.isFeature(geojson)) features.push(geojson);
+        return features;
+    },
+    
+    
+    geometries: function ( geojson ) {
+        // Find all geometries in a GeoJSON object.
+        var geometries = [];
+        if (GeoJSON.isGeometryCollection(geojson)) geojson.geometries.forEach(
+            function ( Geometry ) {
+                GeoJSON.geometries(Geometry).forEach(
+                    function ( Geometry ) {
+                        geometries.push(Geometry);
+                    }
+                );
+            }
+        );
+        else if (GeoJSON.isGeometry(geojson)) geometries.push(geojson);
+        // TODO Extract geometries from Features!
+        return geometries;
     }
-// TODO ///////////////////////////////////////////////////////////////////// 80
+    
+    
 };

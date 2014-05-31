@@ -5,6 +5,7 @@ var plain = require('./visualizers/plain');
 var spatial = require('./visualizers/spatial');
 
 
+// TODO
 var vizit = {
     canvas: document.getElementById('canvas'),
     data: null,
@@ -114,25 +115,29 @@ window.Vizit = {
     },
     
     
-// TODO ///////////////////////////////////////////////////////////////////// 80
-    mapGeoJSON: function ( geojson, FeatureCallback ) {
-        if (typeof FeatureCallback === 'function') GeoJSON.mapFeatures(
-            geojson,
-            function ( feature ) {
-                var isEpicenter = (
-                    feature.properties != null &&
-                    GeoJSON.isFeatureCollection(feature.properties.related)
-                );
-                FeatureCallback(feature,isEpicenter);
-                if (isEpicenter) Vizit.mapGeoJSON(
-                    feature.properties.related,
-                    FeatureCallback
-                );
+    features: function (geojson) {
+        // TODO
+        var features = [];
+        GeoJSON.features(geojson).map(
+            function ( Feature ) {
+                features.push(Feature);
+                if (
+                    Feature.properties != null &&
+                    GeoJSON.isFeatureCollection(Feature.properties.related)
+                ) {
+                    Vizit.features(Feature.properties.related).forEach(
+                        function ( Feature ) {
+                            features.push(Feature);
+                        }
+                    );
+                }
             }
         );
+        return features;
     },
     
     
+// TODO ///////////////////////////////////////////////////////////////////// 80
     HTMLFeature: function ( Feature ) {
         // Create a string of HTML to style a feature.
         var popup = '';
@@ -152,10 +157,13 @@ window.Vizit = {
                 popup += '<blockquote>'+properties.text+'</blockquote>';
             }
             if (properties.image != null) {
-                popup += '<img src="data:image/jpeg;base64,'+properties.image+'">';
+                popup +=
+                    '<img src="data:image/jpeg;base64,'+properties.image+'">';
             }
         }
         return popup;
     }
 // TODO ///////////////////////////////////////////////////////////////////// 80
+    
+    
 };
