@@ -1,4 +1,4 @@
-// This library depends on GeoJSON.
+var GeoJSON = require('./node_modules/gjtk');
 
 
 window.OpenFusion = {

@@ -1,4 +1,7 @@
-// This library depends on Leaflet, LeafletSlider, and GeoJSON.
+// This library depends on Leaflet, LeafletSlider.
+
+
+var GeoJSON = require('../node_modules/gjtk');
 
 
 exports.version = '0.1.0';

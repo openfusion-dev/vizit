@@ -1,13 +1,7 @@
 #!/usr/bin/env sh
 
-GeoJSONVersion='0.1.0'
 OpenFusionVersion='0.1.0'
 VizitVersion='0.1.0'
-
-
-browserify "scripts/source/GeoJSON.js" > "scripts/geojson-$GeoJSONVersion.js"
-minify "scripts/geojson-$GeoJSONVersion.js" > "scripts/geojson-$GeoJSONVersion.min.js"
-rm "scripts/geojson-$GeoJSONVersion.js"
 
 browserify "scripts/source/OpenFusion.js" > "scripts/geojson-$OpenFusionVersion.js"
 minify "scripts/geojson-$OpenFusionVersion.js" > "scripts/openfusion-$OpenFusionVersion.min.js"

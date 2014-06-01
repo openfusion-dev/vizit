@@ -1,6 +1,4 @@
-// This library depends on GeoJSON.
-
-
+var GeoJSON = require('./node_modules/gjtk');
 var plain = require('./visualizers/plain');
 var spatial = require('./visualizers/spatial');
 
