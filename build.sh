@@ -5,8 +5,13 @@ OpenFusionVersion='0.1.0'
 VizitVersion='0.1.0'
 
 
-minify "scripts/source/GeoJSON.js" > "scripts/geojson-$GeoJSONVersion.min.js"
-minify "scripts/source/OpenFusion.js" > "scripts/openfusion-$OpenFusionVersion.min.js"
+browserify "scripts/source/GeoJSON.js" > "scripts/geojson-$GeoJSONVersion.js"
+minify "scripts/geojson-$GeoJSONVersion.js" > "scripts/geojson-$GeoJSONVersion.min.js"
+rm "scripts/geojson-$GeoJSONVersion.js"
+
+browserify "scripts/source/OpenFusion.js" > "scripts/geojson-$OpenFusionVersion.js"
+minify "scripts/geojson-$OpenFusionVersion.js" > "scripts/openfusion-$OpenFusionVersion.min.js"
+rm "scripts/geojson-$OpenFusionVersion.js"
 
 browserify "scripts/source/Vizit.js" > "scripts/vizit-$VizitVersion.js"
 minify "scripts/vizit-$VizitVersion.js" > "scripts/vizit-$VizitVersion.min.js"

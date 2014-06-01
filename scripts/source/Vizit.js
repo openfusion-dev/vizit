@@ -13,7 +13,7 @@ var vizit = {
         'plain',
         'spatial'
     ],
-    toggle: document.getElementById('toggle'),  // TODO Internalize this.
+    toggle: document.getElementById('toggle'),
     visualization: 'plain'
 }
 
@@ -116,9 +116,9 @@ window.Vizit = {
     
     
     features: function (geojson) {
-        // TODO
+        // Recursively extract GeoJSON Features from a data set.
         var features = [];
-        GeoJSON.features(geojson).map(
+        GeoJSON.featuresOf(geojson).map(
             function ( Feature ) {
                 features.push(Feature);
                 if (

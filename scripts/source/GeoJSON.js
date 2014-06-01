@@ -1,29 +1,15 @@
-// TODO Validate CRS objects.
-// TODO Validate bbox members.
+var inside = require('./node_modules/point-in-polygon');
+var URI = require('./node_modules/uri-js');
 
-var GeoJSON = {
+window.GeoJSON = {
     
     
     // Versions below 1.0.0 cannot validate the entire GeoJSON specification.
     version: '0.1.0',
     
     
-    equalPositions: function ( a , b ) {
-        // Compare two positions for equality.
-        return (
-            GeoJSON.isPosition(a) && GeoJSON.isPosition(b) &&
-            a.length == b.length &&
-            a.every(
-                function ( element , index ) {
-                    return (a[index] == b[index]);
-                }
-            )
-        );
-    },
-    
-    
     isPosition: function ( x ) {
-        // Validate a GeoJSON Position geometry.
+        // Validate a GeoJSON Position.
         return (
             Array.isArray(x) &&
             x.length > 1 &&
@@ -36,101 +22,269 @@ var GeoJSON = {
     },
     
     
-    isMultiPoint: function ( x ) {
-        // Validate a GeoJSON MultiPoint geometry.
-        return (Array.isArray(x) && x.every(GeoJSON.isPosition));
+    isPointCoordinates: function ( x ) {
+        // Validate the coordinates of a GeoJSON Point.
+        return GeoJSON.isPosition(x);
     },
     
     
-    isLineString: function ( x ) {
-        // Validate a GeoJSON LineString geometry.
-        return (Array.isArray(x) && x.length > 1 && GeoJSON.isMultiPoint(x));
+    isMultiPointCoordinates: function ( x ) {
+        // Validate the coordinates of a GeoJSON MultiPoint.
+        return (
+            Array.isArray(x) &&
+            x.every(GeoJSON.isPosition)
+        );
     },
     
     
-    isLinearRing: function ( x ) {
-        // Validate a GeoJSON LinearRing geometry.
+    isLineStringCoordinates: function ( x ) {
+        // Validate the coordinates of a GeoJSON LineString.
+        return (
+            Array.isArray(x) &&
+            x.length > 1 &&
+            GeoJSON.isMultiPointCoordinates(x)
+        );
+    },
+    
+    
+    isLinearRingCoordinates: function ( x ) {
+        // Validate the coordinates of a GeoJSON LinearRing.
         return (
             Array.isArray(x) &&
             x.length > 3 &&
-            GeoJSON.isLineString(x) &&
+            GeoJSON.isLineStringCoordinates(x) &&
             GeoJSON.equalPositions(x[0],x[x.length-1])
         );
     },
     
     
-    isMultiLineString: function  ( x ) {
-        // Validate a GeoJSON MultiLineString geometry.
-        return (Array.isArray(x) && x.every(GeoJSON.isLineString));
+    isMultiLineStringCoordinates: function ( x ) {
+        // Validate the coordinates of a GeoJSON MultiLineString.
+        return (
+            Array.isArray(x) &&
+            x.every(GeoJSON.isLineStringCoordinates)
+        );
+    },
+    
+    
+    isPolygonCoordinates: function ( x ) {
+        // Validate the coordinates of a GeoJSON Polygon.
+        return (
+            Array.isArray(x) &&
+            x.every(GeoJSON.isLinearRingCoordinates) &&
+            x.every(
+                function ( LinearRingCoordinates , i , PolygonCoordinates ) {
+                    if (i == 0) return true;
+                    else return GeoJSON.containedPolygon(
+                        LinearRingCoordinates,
+                        PolygonCoordinates[0]
+                    );
+                }
+            )
+        );
+    },
+    
+    
+    isMultiPolygonCoordinates: function ( x ) {
+        // Validate the coordinates of a GeoJSON MultiPolygon.
+        return (
+            Array.isArray(x) &&
+            x.every(GeoJSON.isPolygonCoordinates)
+        );
+    },
+    
+    
+    validCRS: function ( x ) {
+        // Validate the CRS property of a GeoJSON object.
+        return (
+            x != null &&
+            (
+                typeof x.crs === 'undefined' ||
+                x.crs === null ||
+                GeoJSON.isCRS(x.crs)
+            )
+        )
+    },
+    
+    
+    validBbox: function ( x ) {
+        // Validate the bbox property of a GeoJSON object.
+        return (
+            x != null &&
+            (
+                typeof x.bbox === 'undefined' ||
+                (
+                    Array.isArray(x.bbox) &&
+                    x.bbox.length%2 === 0 &&
+                    true  // TODO Validate the bbox.
+                )
+            )
+        );
+    },
+    
+    
+    isLink: function ( x ) {
+        // Validate a GeoJSON Link.
+        return (
+            x != null &&
+            x.properties != null &&
+            typeof x.properties.href === 'string' &&
+            URI.parse(x.properties.href).errors.length < 1 &&
+            (
+                typeof x.properties.type === 'undefined' ||
+                (
+                    typeof x.properties.type === 'string' &&
+                    x.properties.type.length > 0
+                )
+            )
+        );
+    },
+    
+    
+    isCRS: function ( x ) {
+        // Validate a GeoJSON Coordinate Reference System.
+        return (
+            x != null &&
+            (
+                (
+                    x.type === 'name' &&
+                    x.properties != null &&
+                    typeof x.properties.name === 'string' &&
+                    x.properties.name.length > 0
+                ) ||
+                (
+                    x.type === 'link' &&
+                    GeoJSON.isLink(x.properties)
+                )
+            )
+        );
+    },
+    
+    
+    isPoint: function ( x ) {
+        // Validate a GeoJSON Point.
+        return (
+            x != null &&
+            x.type === 'Point' &&
+            GeoJSON.isPointCoordinates(x.coordinates) &&
+            GeoJSON.validCRS(x) &&
+            GeoJSON.validBbox(x)
+        );
+    },
+    
+    
+    isMultiPoint: function ( x ) {
+        // Validate a GeoJSON MultiPoint.
+        return (
+            x != null &&
+            x.type === 'MultiPoint' &&
+            GeoJSON.isMultiPointCoordinates(x.coordinates) &&
+            GeoJSON.validCRS(x) &&
+            GeoJSON.validBbox(x)
+        );
+    },
+    
+    
+    isLineString: function ( x ) {
+        // Validate a GeoJSON LineString.
+        return (
+            x != null &&
+            x.type === 'LineString' &&
+            GeoJSON.isLineStringCoordinates(x.coordinates) &&
+            GeoJSON.validCRS(x) &&
+            GeoJSON.validBbox(x)
+        );
+    },
+    
+    
+    isMultiLineString: function ( x ) {
+        // Validate a GeoJSON MultiLineString.
+        return (
+            x != null &&
+            x.type === 'MultiLineString' &&
+            GeoJSON.isMultiLineStringCoordinates(x.coordinates) &&
+            GeoJSON.validCRS(x) &&
+            GeoJSON.validBbox(x)
+        );
     },
     
     
     isPolygon: function ( x ) {
-        // Validate a GeoJSON Polygon geometry.
-        return (Array.isArray(x) && x.every(GeoJSON.isLinearRing));
-        // TODO Verify subsequent rings are contained within previous ones.
+        // Validate a GeoJSON Polygon.
+        return (
+            x != null &&
+            x.type === 'Polygon' &&
+            GeoJSON.isPolygonCoordinates(x.coordinates) &&
+            GeoJSON.validCRS(x) &&
+            GeoJSON.validBbox(x)
+        );
     },
     
     
     isMultiPolygon: function ( x ) {
-        // Validate a GeoJSON MultiPolygon geometry.
-        return (Array.isArray(x) && x.every(GeoJSON.isPolygon));
-    },
-    
-    
-    isGeometry: function ( x ) {
-        // Validate a GeoJSON Geometry object.
-        if (x == null) return false;
-        switch (x.type) {
-            case 'Point':
-                return GeoJSON.isPosition(x.coordinates);
-            case 'MultiPoint':
-                return GeoJSON.isMultiPoint(x.coordinates);
-            case 'LineString':
-                return GeoJSON.isLineString(x.coordinates);
-            case 'MultiLineString':
-                return GeoJSON.isMultiLineString(x.coordinates);
-            case 'Polygon':
-                return GeoJSON.isPolygon(x.coordinates);
-            case 'MultiPolygon':
-                return GeoJSON.isMultiPolygon(x.coordinates);
-            case 'GeometryCollection':
-                return GeoJSON.isGeometryCollection(x);
-            default:
-                return false;
-        }
+        // Validate a GeoJSON MultiPolygon.
+        return (
+            x != null &&
+            x.type === 'MultiPolygon' &&
+            GeoJSON.isMultiPolygonCoordinates(x.coordinates) &&
+            GeoJSON.validCRS(x) &&
+            GeoJSON.validBbox(x)
+        );
     },
     
     
     isGeometryCollection: function ( x ) {
-        // Validate a GeoJSON GeometryCollection object.
+        // Validate a GeoJSON GeometryCollection.
         return (
             x != null &&
             x.type === 'GeometryCollection' &&
             Array.isArray(x.geometries) &&
-            x.geometries.every(GeoJSON.isGeometry)
+            x.geometries.every(GeoJSON.isGeometry) &&
+            GeoJSON.validCRS(x) &&
+            GeoJSON.validBbox(x)
         );
     },
     
     
     isFeature: function ( x ) {
-        // Validate a GeoJSON Feature object.
+        // Validate a GeoJSON Feature.
         return (
             x != null &&
             x.type === 'Feature' &&
-            (x.geometry === null || GeoJSON.isGeometry(x.geometry)) &&
-            typeof x.properties === 'object'
+            typeof x.properties === 'object' &&
+            GeoJSON.validCRS(x) &&
+            GeoJSON.validBbox(x) &&
+            (
+                x.geometry === null ||
+                GeoJSON.isGeometry(x.geometry)
+            )
         );
     },
     
     
     isFeatureCollection: function ( x ) {
-        // Validate a GeoJSON FeatureCollection object.
+        // Validate a GeoJSON FeatureCollection.
         return (
             x != null &&
             x.type === 'FeatureCollection' &&
             Array.isArray(x.features) &&
-            x.features.every(GeoJSON.isFeature)
+            x.features.every(GeoJSON.isFeature) &&
+            GeoJSON.validCRS(x) &&
+            GeoJSON.validBbox(x)
+        );
+    },
+    
+    
+    isGeometry: function ( x ) {
+        // Validate a GeoJSON Geometry.
+        return (
+            GeoJSON.isPoint(x) ||
+            GeoJSON.isMultiPoint(x) ||
+            GeoJSON.isLineString(x) ||
+            GeoJSON.isMultiLineString(x) ||
+            GeoJSON.isPolygon(x) ||
+            GeoJSON.isMultiPolygon(x) ||
+            GeoJSON.isGeometryCollection(x)
         );
     },
     
@@ -145,43 +299,29 @@ var GeoJSON = {
     },
     
     
-    isEmptyFeature: function ( x ) {
-        // Validate an empty GeoJSON Feature.
-        return (
-            GeoJSON.isFeature(x) &&
-            x.geometry === null &&
-            x.properties === {}
-        );
-    },
+///////////////////////////////////////////////////////////////////////////// 80
     
     
-    isEmptyFeatureCollection: function ( x ) {
-        // Validate an empty GeoJSON FeatureCollection.
+    equalPositions: function ( a , b ) {
+        // Compare two GeoJSON Positions for equality.
         return (
-            GeoJSON.isFeatureCollection(x) &&
-            (
-                x.features.length == 0 ||
-                x.features.every(GeoJSON.isEmptyFeature)
+            GeoJSON.isPosition(a) && GeoJSON.isPosition(b) &&
+            a.length == b.length &&
+            a.every(
+                function ( element , index ) {
+                    return (a[index] == b[index]);
+                }
             )
         );
     },
     
     
-    isEmptyGeometryCollection: function ( x ) {
-        // Validte an empty GeoJSON GeometryCollection.
-        return (
-            GeoJSON.isGeometryCollection(x) &&
-            x.geometries.length == 0
-        );
-    },
-    
-    
-    isEmpty: function ( x ) {
-        // Validate an empty GeoJSON object.
-        return (
-            GeoJSON.isEmptyFeature(x) ||
-            GeoJSON.isEmptyFeatureCollection(x) ||
-            GeoJSON.isEmptyGeometryCollection(x)
+    containedPolygon: function ( inner , outer ) {
+        // Determine whether one GeoJSON LinearRing contains another.
+        return inner.every(
+            function ( Position ) {
+                return inside(Position,outer);
+            }
         );
     },
     
@@ -200,14 +340,14 @@ var GeoJSON = {
     },
     
     
-    Feature: function ( geometry , properties ) {
+    Feature: function ( Geometry , properties ) {
         // Create a valid GeoJSON Feature.
         var Feature = {
             type: 'Feature',
             geometry: null,
             properties: (typeof properties === 'object') ? properties : {}
         };
-        if (GeoJSON.isGeometry(geometry)) Feature.geometry = geometry;
+        if (GeoJSON.isGeometry(Geometry)) Feature.geometry = Geometry;
         return Feature;
     },
     
@@ -252,37 +392,118 @@ var GeoJSON = {
     },
     
     
-    features: function ( geojson ) {
-        // Find all features in a GeoJSON object.
-        var features = [];
-        if (GeoJSON.isFeatureCollection(geojson)) geojson.features.forEach(
-            function ( Feature ) {
-                GeoJSON.features(Feature).forEach(
+    positionsOf: function ( geojson ) {
+        // Find all the Positions in a valid GeoJSON object.
+        var positions = [];
+        var extractLineStringPositions = function ( LineStringCoordinates ) {
+            LineStringCoordinates.forEach(
+                function ( Position ) {
+                    positions.push(Position);
+                }
+            );
+        };
+        var extractPolygonPositions = function ( PolygonCoordinates ) {
+            PolygonCoordinates.forEach(extractLineStringPositions);
+        };
+        switch (geojson.type) {
+            case 'Point':
+                positions.push(geojson.coordinates);
+                break;
+            case 'MultiPoint':
+            case 'LineString':
+                extractLineStringPositions(geojson.coordinates);
+                break;
+            case 'MultiLineString':
+            case 'Polygon':
+                extractPolygonPositions(geojson.coordinates);
+                break;
+            case 'MultiPolygon':
+                geojson.coordinates.forEach(extractPolygonPositions);
+                break;
+            case 'GeometryCollection':
+                extractLineStringPositions(
+                    GeoJSON.positionsOf(geojson.geometries)
+                );
+                break;
+            case 'Feature':
+                extractLineStringPositions(
+                    GeoJSON.positionsOf(geojson.geometry)
+                );
+                break;
+            case 'FeatureCollection':
+                geojson.features.forEach(
                     function ( Feature ) {
-                        features.push(Feature);
+                        extractLineStringPositions(
+                            GeoJSON.positionsOf(Feature.geometry)
+                        );
                     }
                 );
-            }
-        );
-        else if (GeoJSON.isFeature(geojson)) features.push(geojson);
+                break;
+        }
+        return positions;
+    },
+    
+    
+    featuresOf: function ( geojson ) {
+        // Find all Features in a valid GeoJSON object.
+        var features = [];
+        switch (geojson.type) {
+            case 'Feature':
+                features.push(geojson);
+                break;
+            case 'FeatureCollection':
+                geojson.features.forEach(
+                    function ( Feature ) {
+                        GeoJSON.featuresOf(Feature).forEach(
+                            function ( Feature ) {
+                                features.push(Feature);
+                            }
+                        );
+                    }
+                );
+                break;
+        }
         return features;
     },
     
     
-    geometries: function ( geojson ) {
-        // Find all geometries in a GeoJSON object.
+    geometriesOf: function ( geojson ) {
+        // Find all Geometries in a valid GeoJSON object.
         var geometries = [];
-        if (GeoJSON.isGeometryCollection(geojson)) geojson.geometries.forEach(
-            function ( Geometry ) {
-                GeoJSON.geometries(Geometry).forEach(
+        var extractFeatureGeometries = function ( Feature ) {
+            GeoJSON.geometriesOf(Feature.geometry).forEach(
+                function ( Geometry ) {
+                    geometries.push(Geometry);
+                }
+            );
+        };
+        switch (geojson.type) {
+            case 'Point':
+            case 'MultiPoint':
+            case 'LineString':
+            case 'MultiLineString':
+            case 'Polygon':
+            case 'MultiPolygon':
+                geometries.push(geojson);
+                break;
+            case 'GeometryCollection':
+                geojson.geometries.forEach(
                     function ( Geometry ) {
-                        geometries.push(Geometry);
+                        GeoJSON.geometriesOf(Geometry).forEach(
+                            function ( Geometry ) {
+                                geometries.push(Geometry);
+                            }
+                        );
                     }
                 );
-            }
-        );
-        else if (GeoJSON.isGeometry(geojson)) geometries.push(geojson);
-        // TODO Extract geometries from Features!
+                break;
+            case 'Feature':
+                extractFeatureGeometries(geojson);
+                break;
+            case 'FeatureCollection':
+                geojson.features.forEach(extractFeatureGeometries);
+                break;
+        }
         return geometries;
     }
     

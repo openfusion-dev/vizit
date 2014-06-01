@@ -1,7 +1,7 @@
 // This library depends on GeoJSON.
 
 
-var OpenFusion = {
+window.OpenFusion = {
     
     
     error: function ( name ) {
@@ -28,7 +28,7 @@ var OpenFusion = {
     ) {
         // Apply functions to each epicenter or aftershock.
         if (GeoJSON.isFeatureCollection(geojson)) {
-            GeoJSON.features(geojson).map(
+            GeoJSON.featuresOf(geojson).map(
                 function ( epicenter ) {
                     if (typeof epicenterHandler === 'function') {
                         epicenterHandler(epicenter);
