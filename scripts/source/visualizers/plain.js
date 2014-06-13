@@ -44,7 +44,7 @@ exports.renderFeature = function ( Feature ) {
 exports.visualizer = function ( geojson , canvasID ) {
     // Instate a plain visualization.
     var context = {canvas:document.getElementById(canvasID)};
-    exports.FeatureProcessor.bind(context);
+    exports.renderFeature.bind(context);
     Vizit.features(geojson).map(
         function ( Feature ) {
             var article = exports.renderFeature(Feature);
