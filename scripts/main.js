@@ -34,5 +34,8 @@ function parseQueryString ( URI ) {
                 }
             );
     }
-    else Vizit.error();  // TODO This is annoying for the user.
+    else {
+        window.location.assign('?data=example/test.geojson');
+        throw new Error();
+    }
 })();
