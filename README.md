@@ -5,6 +5,8 @@ Vizit creates mobile-friendly visualizations for geotagged data using HTML5 and 
 It retrieves GeoJSON files via AJAX and produces maps using Leaflet.js and OpenStreetMap.
 See the [documentation](//ogre.readthedocs.org/en/latest/about.html) of OGRe, a complemental project, for more on the history and architecture of vizit.
 
+![Screenshot](https://dmtucker.github.io/vizit/images/screenshot.png)
+
 # The Basics
 Follow this simple guide to quickly get started using Vizit.
 
