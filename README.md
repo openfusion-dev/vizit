@@ -7,10 +7,8 @@ See the [documentation](//ogre.readthedocs.org/en/latest/about.html) of OGRe, a 
 
 [![Screenshot](https://dmtucker.github.io/vizit/images/screenshot.png)](https://dmtucker.github.io/vizit/)
 
-# The Basics
-Follow this simple guide to quickly get started using Vizit.
-
 ## Installation
+
 To get Vizit, use one of the following methods:
 
 1. [GitHub](https://github.com/dmtucker/vizit/archive/master.zip) (recommended)
@@ -20,16 +18,19 @@ $ git clone http://github.com/dmtucker/vizit.git
 ```
 
 ## Usage
+
 To use Vizit, you must open `index.html` in your favorite browser.
 
-#### Note
+### Note
+
 > Development and testing is done in the latest version of Google Chrome, but Vizit uses HTML5 Boilerplate, Twitter Bootstrap, Modernizr, and more to accommodate as many devices and browsers as possible.
 
 GeoJSON data is specified as a GET parameter like so: `/index.html?data=example.geojson`
 
 ***
 
-# Advanced Features
+## Advanced Features
+
 Vizit looks for keywords in the properties of Feature objects. These keywords affect the look of the resulting visualization. Each property is listed alphabetically below.
 
 * `image` -- content to be displayed in a popup ([Base64](http://en.wikipedia.org/wiki/Base64)-encoded string)
