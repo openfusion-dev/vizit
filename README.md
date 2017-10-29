@@ -39,26 +39,8 @@ Vizit looks for keywords in the properties of Feature objects. These keywords af
 * `radius` -- floating point number representing an area around the Feature's Geometry (in meters)
 * `radiusOptions` -- object containing [Leaflet Path Options](http://leafletjs.com/reference.html#path-options) for styling the [circle](http://leafletjs.com/reference.html#circle) that represents the radius (`radiusOptions` are only rendered if `radius` is specified.)
 * `related` -- GeoJSON FeatureCollection of locally-related data
-* `source` -- origin of `text` and `image` content 
+* `source` -- origin of `text` and `image` content
 * `text` -- string to be displayed in a popup (Unicode encoding supported)
 * `time` -- string produced by `JSON.stringify()` ([ISO 8601](http://en.wikipedia.org/wiki/ISO_8601) format)
 
 ***
-
-## License
-
-Copyright (C) 2016 David Tucker
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
