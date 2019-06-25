@@ -5,16 +5,16 @@ Vizit creates mobile-friendly visualizations for geotagged data using HTML5 and 
 It retrieves GeoJSON files via AJAX and produces maps using Leaflet.js and OpenStreetMap.
 See the [documentation](//ogre.readthedocs.org/en/latest/about.html) of OGRe, a complemental project, for more on the history and architecture of vizit.
 
-[![Screenshot](https://dmtucker.github.io/vizit/images/screenshot.png)](https://dmtucker.github.io/vizit/)
+[![Screenshot](https://openfusion-dev.github.io/vizit/images/screenshot.png)](https://openfusion-dev.github.io/vizit/)
 
 ## Installation
 
 To get Vizit, use one of the following methods:
 
-1. [GitHub](https://github.com/dmtucker/vizit/archive/master.zip) (recommended)
+1. [GitHub](https://github.com/openfusion-dev/vizit/archive/master.zip) (recommended)
 2. git
 ```shell
-$ git clone http://github.com/dmtucker/vizit.git
+$ git clone http://github.com/openfusion-dev/vizit.git
 ```
 
 ## Usage

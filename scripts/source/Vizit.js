@@ -27,7 +27,7 @@ window.Vizit = {
         if (message == null) message = 'An error occurred in Vizit.';
         console.error(message);
         alert(message);
-        window.location.assign('//dmtucker.github.io/vizit/');
+        window.location.assign('//openfusion-dev.github.io/vizit/');
         throw new Error(message);
     },
     
