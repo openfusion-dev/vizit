@@ -11,7 +11,7 @@ exports.visualization = function ( canvas ) {
     // Instantiate a spatial visualization, and add it to the canvas.
     var map = L.map(canvas).setView([0,0],3);
     L.tileLayer(
-        'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+        'https://{s}.tile.osm.org/{z}/{x}/{y}.png',
         {
             minZoom: 0,
             maxZoom: 24,
@@ -21,7 +21,7 @@ exports.visualization = function ( canvas ) {
             errorTileUrl: '',
             attribution:
                 '&copy;' +
-                ' <a href="http://osm.org/copyright">OpenStreetMap</a>' +
+                ' <a href="https://osm.org/copyright">OpenStreetMap</a>' +
                 ' contributors',
             tms: false,
             continuousWorld: false,

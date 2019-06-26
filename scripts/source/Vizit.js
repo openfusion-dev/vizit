@@ -27,7 +27,7 @@ window.Vizit = {
         if (message == null) message = 'An error occurred in Vizit.';
         console.error(message);
         alert(message);
-        window.location.assign('//openfusion-dev.github.io/vizit/');
+        window.location.assign('https://openfusion-dev.github.io/vizit/');
         throw new Error(message);
     },
     
@@ -108,7 +108,7 @@ window.Vizit = {
         else Vizit.error(
             'Error: Only valid GeoJSON resources can be visualized!\n' +
             '\n' +
-            'See http://geojson.org/ for more information.'
+            'See https://geojson.org/ for more information.'
         );
     },
     
