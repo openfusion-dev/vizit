@@ -22,7 +22,7 @@ var plain = module.exports = {
                 canvas.appendChild(article);
             }
             else if (Feature.geometry.type === 'Point') $.get(
-                'http://nominatim.openstreetmap.org/reverse' +
+                'https://nominatim.openstreetmap.org/reverse' +
                     '?format=xml' +
                     '&lat='+Feature.geometry.coordinates[1].toString() +
                     '&lon='+Feature.geometry.coordinates[0].toString()
